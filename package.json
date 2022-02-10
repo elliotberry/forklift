@@ -1,0 +1,37 @@
+{
+  "name": "github-forklift",
+
+  "version": "0.0.3",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "ɛʟʟɨօȶ b",
+  "license": "The Unlicense",
+  "repository": "https://github.com/elliotberry/forklift.git",
+  "dependencies": {
+    "@tanstack/react-table": "^8.21.3",
+    "awesome-debounce-promise": "^2.1.0",
+    "feather-icons": "^4.29.2",
+    "pretty-bytes": "^7.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-feather": "^2.0.10",
+    "sass": "^1.89.2",
+    "use-local-storage": "^3.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.31.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "release-it": "^19.0.4",
+    "vite": "^7.0.5"
+  }
+}

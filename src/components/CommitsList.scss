@@ -1,0 +1,20 @@
+.commits-list {
+    .commits-label {
+        .open {
+            &::after {
+                content: '▼';
+            }
+            .commits-menu {
+                display: block;
+            }
+        }
+        .closed {
+            &::after {
+                content: '▲';
+            }
+            .commits-menu {
+                display: none;
+            }
+        }
+    }
+}

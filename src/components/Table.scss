@@ -1,0 +1,112 @@
+table {
+width:100%;
+  // Base styles
+  .false {
+    font-size: 1.2em;
+  }
+
+  .icon img {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    overflow: hidden;
+  }
+
+  span.label {
+    width: 0;
+    position: absolute;
+    opacity: 0.2;
+    font-size: 1.5em;
+    top: 50%;
+    left: -1.5em;
+    transform: translateY(-50%);
+  }
+
+  tr {
+    position: relative;
+  }
+
+  th {
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .i-own-it {
+
+
+    line-height: 4px;
+    font-style: italic;
+
+  }
+
+  .cell-description {
+    font-style: italic;
+  }
+
+}
+
+
+// Table styling
+table {
+  line-height: 110%;
+  border-collapse: collapse;
+  font-family: var(--whitney);
+  font-weight: 400;
+  font-size: 0.9em;
+  font-variant: oldstyle-nums;
+  border-spacing: 2px 2px;
+  text-align: left;
+
+  tr {
+    border-bottom: 2.1px dotted #9b9999;
+  }
+
+  td,
+  th {
+    padding: 0.3em 0.5em;
+
+    &.cell-description {
+      max-width: 250px;
+      font-family: 'Whitney SSm';
+    }
+
+    a {
+      color: #188af1;
+     
+      font-weight: 500;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .cursor-pointer {
+      position: relative;
+    }
+  }
+
+  div[contenteditable] {
+    border: 0.12em dotted #d9d9d9;
+    padding: 0.2em;
+  }
+
+
+
+  .sorting-symbol {
+    right: 0;
+    top: 0;
+    font-weight: 700;
+    display: inline;
+    margin-left: 5px;
+  }
+
+  .icon {
+    height: 30px;
+    margin-right:5px;
+  }
+
+  .name {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}

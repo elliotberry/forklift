@@ -1,0 +1,16 @@
+.search {
+    font-size:1.1em;
+    display:flex;
+    flex-direction:row;
+    gap:10px;
+    input {
+        display:flex;
+        font-size:1.1em;
+        padding:10px 5px;
+        width:60%;
+    }
+    button {
+        font-size:1.1em;
+        margin-left:auto;
+    }
+}

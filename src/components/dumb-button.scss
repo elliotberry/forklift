@@ -1,0 +1,115 @@
+.loading-child {
+    opacity: 0;
+
+}
+
+
+
+
+
+
+button.loader-button {
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    cursor: pointer;
+    display: flex;
+    position: relative;
+    padding: .5em;
+    font-size: .85em;
+    color: #131313;
+
+    .outcome {
+        position: absolute;
+        animation: sparkly 1s infinite;
+        color: #56d385;
+    }
+
+    @keyframes sparkly {
+        0% {
+            text-shadow: 0 0 1px #131313;
+        
+        }
+        50% {
+            text-shadow: 0 0 1px #131313;
+          
+        }
+        100% {
+            text-shadow: 0 0 10px #f1f1f1, 0 0 20px #f1f1f1, 0 0 30px #f1f1f1, 0 0 40px #f1f1f1, 0 0 50px #f1f1f1, 0 0 60px #f1f1f1, 0 0 70px #f1f1f1, 0 0 80px #f1f1f1;
+            
+        }
+
+       
+    }
+
+    .loader {
+        opacity: 0;
+
+        transition: opacity 0.3s ease-in-out;
+
+        &.not-loading {
+            height: 0;
+            width: 0;
+        }
+    }
+
+    &.is--loading .loader {
+        opacity: 1;
+    }
+
+    .child-zone {
+        opacity: 1;
+
+        &.loading-child {
+            opacity: 0;
+        }
+    }
+}
+
+@keyframes loader {
+    0% {
+        content: ".";
+    }
+
+    25% {
+        content: "..";
+    }
+
+    50% {
+        content: "...";
+    }
+
+    75% {
+        content: "...";
+    }
+
+    100% {
+        content: "";
+    }
+}
+
+.loader {
+    position: absolute;
+    opacity: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    z-index: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    &.loading {
+        opacity: 1;
+    }
+
+    &::after {
+        content: ".";
+        font-size: 1em;
+        font-weight: bold;
+        animation: loader 0.8s linear infinite;
+    }
+}
+
+.loader,
+.loading-child {
+    transition: opacity 0.3s ease-in-out;
+}

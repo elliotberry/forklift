@@ -1,0 +1,72 @@
+body {
+  margin: 0;
+  font-family: "DM Mono";
+  font-size: .9em;
+   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: left !important;
+}
+.rate-limit-info {
+  font-size: 0.7rem;
+}
+.container {
+  max-width: 1000px;
+    margin: 0 auto;
+}
+.diff-loading-info {
+  display: flex;
+  flex-direction:row;
+}
+.grid-content {
+  padding-top: 50px;
+}
+
+.small {
+  font-size: 0.7rem;
+  text-align: left;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+header {
+  overflow: hidden;
+}
+.is--inactive .el-alert {
+  opacity: 0;
+  position: absolute;
+  z-index: 0;
+  transition: opacity 0.5s;
+}
+.is--active .el-alert {
+  position: relative;
+  z-index: 1;
+  opacity: 1;
+}
+
+
+
+.el-table th > .cell {
+  font-size: 0.8rem;
+}
+.App {
+  padding: 40px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.search-button {
+  width: 95%;
+}
+
+.table-dialogue {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+}
+.config-tab {
+  text-align: left;
+}
+
+.el-form-item {
+  margin-bottom: 0px !important;
+}
