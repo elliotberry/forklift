@@ -77,10 +77,10 @@ button.settings {
     list-style: none;
     width: 20px;
     height: 20px;
-    background: rgba(255, 255, 255, 0.2);
+  
     animation: animate 6s linear infinite;
     bottom: -150px;
-    background-image: url('../public/ferk.jpg');
+    background-image: url('./ferk.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
   }
