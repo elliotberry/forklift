@@ -99,7 +99,7 @@ function App() {
       <div className="container">
         <div className="grid-content bg-purple-dark">
           <Header>
-            <button className="settings" onClick={openModal}>
+        <button className="settings" onClick={openModal}>
               <Settings />
             </button>
           </Header>
