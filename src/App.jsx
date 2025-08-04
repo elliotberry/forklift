@@ -37,9 +37,7 @@ function App() {
           try {
             const diff = repoDiffInfo.find(d => d.forkId === fork.forkId);
             ret = diff ? {...fork, diffInfo: diff, commitsList: diff.commitsList, changes: diff.simpleSummary, commitsAhead: diff.ahead_by, commitsBehind: diff.behind_by} : fork;
-          } catch  {
-            
-          }
+          } catch {}
           return ret;
         }),
       );
@@ -76,7 +74,6 @@ function App() {
     let api = await new Api(repoString, token, onRateLimit);
     setLoading(true);
     let forks = await api.getForks(async function (forks) {
-    
       setTotalForks(forks.length);
       setTableData(prevTableData => [...prevTableData, ...forks]);
       if (cancelRequested === true) {
@@ -99,7 +96,7 @@ function App() {
       <div className="container">
         <div className="grid-content bg-purple-dark">
           <Header>
-        <button className="settings" onClick={openModal}>
+            <button className="settings" onClick={openModal}>
               <Settings />
             </button>
           </Header>
