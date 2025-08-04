@@ -16,8 +16,11 @@ const MemoizedCell = React.memo(({props}) => {
 
 // Memoized row component to prevent unnecessary re-renders
 const MemoizedRow = React.memo(({row}) => {
+  // Check if this fork has any changes compared to the original
+  const hasChanges = row.original.commitsAhead > 0 || row.original.commitsBehind > 0;
+  
   return (
-    <tr className={`row-index-${row.index}`}>
+    <tr className={`row-index-${row.index} ${hasChanges ? 'has-changes' : ''}`}>
       {row.getVisibleCells().map(props => (
         <MemoizedCell key={props.id} props={props} />
       ))}
@@ -59,7 +62,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   // Memoized columns definition to prevent recreation on every render
   const columns = useMemo(() => [
     {
-      header: 'Owner', 
+      header: 'Author', 
       accessorKey: 'owner',
       cell: info => <OwnerCell owner={info.getValue()} />
     },

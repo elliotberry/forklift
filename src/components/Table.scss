@@ -59,6 +59,14 @@ table {
 
   tr {
     border-bottom: 2.1px dotted #9b9999;
+    
+    &.has-changes {
+      background-color: rgba(99, 102, 241, 0.05);
+      
+      &:hover {
+        background-color: rgba(99, 102, 241, 0.1);
+      }
+    }
   }
 
   td,
