@@ -38,6 +38,19 @@ const TimeCell = React.memo(({date}) => {
   return <span>{timeAgo(date)}</span>;
 });
 
+const OwnerCell = React.memo(({owner}) => {
+  return (
+    <a 
+      href={`https://github.com/${owner}`} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="owner-link"
+    >
+      {owner}
+    </a>
+  );
+});
+
 const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   const [sorting, setSorting] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +58,11 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
 
   // Memoized columns definition to prevent recreation on every render
   const columns = useMemo(() => [
-    {header: 'Owner', accessorKey: 'owner'},
+    {
+      header: 'Owner', 
+      accessorKey: 'owner',
+      cell: info => <OwnerCell owner={info.getValue()} />
+    },
   
     {
       header: () => <>Commits<br />Ahead</>,

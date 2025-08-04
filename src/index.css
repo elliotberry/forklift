@@ -6,6 +6,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: left !important;
 }
+
+button {
+  cursor: pointer;
+}
 .rate-limit-info {
   font-size: 0.7rem;
 }

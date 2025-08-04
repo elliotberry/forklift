@@ -9,6 +9,26 @@
         padding:10px 5px;
         flex: 1;
         min-width: 0;
+        border: 2px solid #00000021;
+        border-radius: 4px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        
+        &.invalid-input {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+        
+        &:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        &.invalid-input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
     }
     button {
         font-size:1.1em;
@@ -16,5 +36,6 @@
         flex-shrink: 0;
         padding: 10px 15px;
         width: auto;
+        cursor: pointer;
     }
 }
