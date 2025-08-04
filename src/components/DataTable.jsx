@@ -25,19 +25,26 @@ const MemoizedRow = React.memo(({row}) => {
   );
 });
 
+// Memoized cell renderers for better performance
+const CommitsCell = React.memo(({commits}) => {
+  return <CommitsList commits={commits} />;
+});
+
+const SizeCell = React.memo(({size}) => {
+  return <span>{prettyBytes(size)}</span>;
+});
+
+const TimeCell = React.memo(({date}) => {
+  return <span>{timeAgo(date)}</span>;
+});
+
 const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   const [sorting, setSorting] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 50;
 
-  const columns = [
-  /*  {
-      header: 'Name',
-      accessorKey: 'name',
-      cell: info => (
-        <a href={`https://github.com/${info.row.original.fullName}`} target="_blank">
-          {info.getValue()}
-        </a>
-      ),
-    },*/
+  // Memoized columns definition to prevent recreation on every render
+  const columns = useMemo(() => [
     {header: 'Owner', accessorKey: 'owner'},
     {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},
     {
@@ -64,10 +71,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       sortingFn: 'basic',
       cell: info => {
         let commitsList = info.getValue();
-
-        return (
-          <CommitsList commits={commitsList} />
-        );
+        return <CommitsCell commits={commitsList} />;
       },
     },
     {
@@ -75,26 +79,34 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       accessorKey: 'size',
       sortingFn: 'basic',
       cell: info => {
-        let size = prettyBytes(info.getValue());
-        return <span>{size}</span>;
+        return <SizeCell size={info.getValue()} />;
       },
     },
     {
       header: 'Created',
       accessorKey: 'createdAt',
       sortingFn: 'datetime',
-      cell: info => <span>{timeAgo(info.getValue())}</span>,
+      cell: info => <TimeCell date={info.getValue()} />,
     },
     {
       header: 'Updated',
       accessorKey: 'updatedAt',
       sortingFn: 'datetime',
-      cell: info => <span>{timeAgo(info.getValue())}</span>,
+      cell: info => <TimeCell date={info.getValue()} />,
     },
-  ];
+  ], [prettyTimeFormat]);
+
+  // Memoized paginated data
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return data.slice(startIndex, endIndex);
+  }, [data, currentPage]);
+
+  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
   const table = useReactTable({
-    data,
+    data: paginatedData,
     columns,
     state: {
       sorting,
@@ -112,6 +124,10 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       return aMeta.rank - bMeta.rank;
     });
   }, [table.getRowModel().rows]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
+  };
 
   return (
     <div className="table-container">
@@ -145,9 +161,33 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
           ))}
         </tbody>
       </table>
+      
+      {/* Pagination controls */}
+      {data.length > ITEMS_PER_PAGE && (
+        <div className="pagination">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-button"
+          >
+            Previous
+          </button>
+          <span className="pagination-info">
+            Page {currentPage} of {totalPages} ({data.length} total items)
+          </span>
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-button"
+          >
+            Next
+          </button>
+        </div>
+      )}
+      
       {data.length === 0 && <div>search for somethin'!</div>}
     </div>
   );
 };
 
-export default DataTable;
+export default React.memo(DataTable);

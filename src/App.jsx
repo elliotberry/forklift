@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
+import PropTypes from 'prop-types';
 
 import Header from './components/Header.jsx';
 import DataTable from './components/DataTable.jsx';
@@ -10,7 +11,40 @@ import {Api} from './lib/fork-api.js';
 import LoadingBar from './components/LoadingBar.jsx';
 import './index.css';
 import useError from './lib/useError';
-import {getMinutesUntil} from './lib/util.js';
+import {getMinutesUntil, measureAsyncPerformance, logMemoryUsage} from './lib/util.js';
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error-boundary">
+          <h3>Something went wrong</h3>
+          <p>Please try refreshing the page or searching for a different repository.</p>
+          <button onClick={() => window.location.reload()}>Refresh Page</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 function App() {
   const {Modal, openModal} = useModal();
@@ -24,105 +58,148 @@ function App() {
   const [tableData, setTableData] = useState([]);
 
   const [repoDiffInfo, setRepoDiffInfo] = useState([]);
-  const [totalForks, setTotalForks] = useState(null);
+  const [diffMap, setDiffMap] = useState(new Map());
   const {handleError, Error} = useError();
+  
   const tryCancel = () => {
     setCancelRequested(true);
   };
+
+  // Memoized diff map for O(1) lookups
   useEffect(() => {
     if (repoDiffInfo.length > 0) {
-      setTableData(prevTableData =>
-        prevTableData.map(fork => {
-          let ret = fork;
-          try {
-            const diff = repoDiffInfo.find(d => d.forkId === fork.forkId);
-            ret = diff ? {...fork, diffInfo: diff, commitsList: diff.commitsList, changes: diff.simpleSummary, commitsAhead: diff.ahead_by, commitsBehind: diff.behind_by} : fork;
-          } catch {}
-          return ret;
-        }),
-      );
+      const newDiffMap = new Map();
+      repoDiffInfo.forEach(diff => {
+        newDiffMap.set(diff.forkId, diff);
+      });
+      setDiffMap(newDiffMap);
     }
   }, [repoDiffInfo]);
+
+  // Memoized table data with diff info
+  const enhancedTableData = useMemo(() => {
+    return tableData.map(fork => {
+      const diff = diffMap.get(fork.forkId);
+      if (diff) {
+        return {
+          ...fork,
+          diffInfo: diff,
+          commitsList: diff.commitsList,
+          changes: diff.simpleSummary,
+          commitsAhead: diff.ahead_by,
+          commitsBehind: diff.behind_by
+        };
+      }
+      return fork;
+    });
+  }, [tableData, diffMap]);
 
   const onRateLimit = obj => {
     setRateLimitInfo(obj);
   };
 
   async function getDiffs(forks, api) {
-    let repoDiffInfo = [];
-    let i = 0;
-    let totalNumber = forks.length;
-    setLoadingReason('Getting fork diff info...');
+    return measureAsyncPerformance('getDiffs', async () => {
+      let repoDiffInfo = [];
+      let i = 0;
+      let totalNumber = forks.length;
+      setLoadingReason('Getting fork diff info...');
 
-    await api.getAllDiffs(forks, async function (diff) {
-      i++;
+      await api.getAllDiffs(forks, async function (diff) {
+        i++;
 
-      repoDiffInfo = [...repoDiffInfo, diff];
-      setRepoDiffInfo(repoDiffInfo);
-      setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
-      if (cancelRequested === true) {
-        console.log('cancel requested');
-        setCancelRequested(false);
-        return false;
-      }
+        repoDiffInfo = [...repoDiffInfo, diff];
+        setRepoDiffInfo(repoDiffInfo);
+        setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
+        if (cancelRequested === true) {
+          console.log('cancel requested');
+          setCancelRequested(false);
+          return false;
+        }
+      });
+      setLoadingReason('');
+      setLoadingPercent(100);
     });
-    setLoadingReason('');
-    setLoadingPercent(100);
   }
-  // setRequestsRemaining(remaining);
+
   async function startSearch(repoString) {
-    let api = await new Api(repoString, token, onRateLimit);
-    setLoading(true);
-    let forks = await api.getForks(async function (forks) {
-      setTotalForks(forks.length);
-      setTableData(prevTableData => [...prevTableData, ...forks]);
-      if (cancelRequested === true) {
-        console.log('cancel requested');
-        setCancelRequested(false);
-        return false;
+    return measureAsyncPerformance('startSearch', async () => {
+      try {
+        logMemoryUsage('Before search');
+        
+        let api = await new Api(repoString, token, onRateLimit);
+        setLoading(true);
+        setTableData([]);
+        setRepoDiffInfo([]);
+        setDiffMap(new Map());
+        
+        let forks = await api.getForks(async function (forks) {
+          setTableData(prevTableData => [...prevTableData, ...forks]);
+          if (cancelRequested === true) {
+            console.log('cancel requested');
+            setCancelRequested(false);
+            return false;
+          }
+        });
+
+        setLoading(false);
+        setTableData(forks);
+        let forksToCompare = await api.getForksToCompare(forks);
+
+        await getDiffs(forksToCompare, api);
+        
+        logMemoryUsage('After search');
+      } catch (error) {
+        console.error('Search failed:', error);
+        setLoading(false);
+        handleError('Search failed. Please try again.');
       }
     });
-
-    setLoading(false);
-    setTotalForks(forks.length);
-    setTableData(forks);
-    let forksToCompare = await api.getForksToCompare(forks);
-
-    getDiffs(forksToCompare, api);
   }
 
   return (
-    <div className="App">
-      <div className="container">
-        <div className="grid-content bg-purple-dark">
-          <Header>
-            <button className="settings" onClick={openModal}>
-              <Settings />
-            </button>
-          </Header>
-          <Error />
-          {rateLimitInfo && (
-            <div className="rate-limit-info">
-              {rateLimitInfo.remaining} requests remaining / resets in {getMinutesUntil(rateLimitInfo.reset)}m
-            </div>
-          )}
-
-          {loadingPercent > 0 && loadingPercent < 100 && (
-            <div className="diff-loading-info">
-              <LoadingBar percentage={loadingPercent} description={loadingReason} />
-              <button onClick={tryCancel} className="cancel-button">
-                Cancel
+    <ErrorBoundary>
+      <div className="App">
+        <div className="container">
+          <div className="grid-content bg-purple-dark">
+            <Header>
+              <button className="settings" onClick={openModal}>
+                <Settings />
               </button>
-            </div>
+            </Header>
+            <Error />
+            {rateLimitInfo && (
+              <div className="rate-limit-info">
+                {rateLimitInfo.remaining} requests remaining / resets in {getMinutesUntil(rateLimitInfo.reset)}m
+              </div>
+            )}
+
+            {loadingPercent > 0 && loadingPercent < 100 && (
+              <div className="diff-loading-info">
+                <LoadingBar percentage={loadingPercent} description={loadingReason} />
+                <button onClick={tryCancel} className="cancel-button">
+                  Cancel
+                </button>
+              </div>
+            )}
+            <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
+          </div>
+          {enhancedTableData && enhancedTableData?.length > 0 && (
+            <DataTable 
+              showForkDiffs={showForkDiffs} 
+              data={enhancedTableData} 
+              prettySizeEnabled={prettySizeEnabled} 
+              prettyTimeFormat={prettyTimeFormat} 
+              dataLoading={loading} 
+              repoDiffInfo={repoDiffInfo} 
+            />
           )}
-          <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
         </div>
-        {tableData && tableData?.length > 0 && <DataTable showForkDiffs={showForkDiffs} data={tableData} prettySizeEnabled={prettySizeEnabled} prettyTimeFormat={prettyTimeFormat} dataLoading={loading} repoDiffInfo={repoDiffInfo} />}
+        <Modal>
+          <Config />
+        </Modal>
       </div>
-      <Modal>
-        <Config />
-      </Modal>
-    </div>
+    </ErrorBoundary>
   );
 }
 

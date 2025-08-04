@@ -53,6 +53,7 @@ class Api {
   }
 
   async get(url, onGetURL = function () {}) {
+    const start = performance.now();
     try {
       const response = await fetch(url, this.config);
       if (response.status !== 200 || response.ok === false) {
@@ -68,9 +69,13 @@ class Api {
      } else {
         this.updateRate(response);
         const data = await response.json();
+        const end = performance.now();
+        console.log(`API call to ${url} took ${end - start}ms`);
         return data;
       }
     } catch (error) {
+      const end = performance.now();
+      console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
     }
   }
@@ -130,6 +135,7 @@ class Api {
   }
 
   async getDiff(forkObject) {
+    const start = performance.now();
     try {
       const fullName = this.originalRepo.full_name;
       const defaultBranch = this.originalRepo.default_branch;
@@ -148,9 +154,14 @@ class Api {
       //  delete data.commits;
       data.simpleSummary = this.summarizeChanges(data.files);
       data.forkId = `${forkObject.fullName}`;
+      const end = performance.now();
+      console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms`);
       return data;
     } catch (error) {
+      const end = performance.now();
+      console.error(`Diff calculation for ${forkObject.forkId} failed after ${end - start}ms:`, error);
       this.handleError(error);
+      return null;
     }
   }
 
@@ -166,10 +177,12 @@ class Api {
       return someData;
     } catch (error) {
       console.error(error);
+      return [];
     }
   }
 
   async getForks(onGetForks = async function () {}) {
+    const start = performance.now();
     let numberOfPages = Math.ceil(this.originalRepo.forks / 100);
 
     let asyncIterator = Array.from({length: numberOfPages}, (_, i) => i + 1);
@@ -185,20 +198,60 @@ class Api {
         break;
       }
     }
+    const end = performance.now();
+    console.log(`Total forks fetch took ${end - start}ms for ${allForks.length} forks`);
     return allForks;
   }
+
   async getAllDiffs(forksToCompare, onGetDiff = async function () {}) {
-    let asyncIterator = forksToCompare;
-    let allDiffs = [];
-    for await (let fork of asyncIterator) {
-      let diff = await this.getDiff(fork);
+    const start = performance.now();
+    const batchSize = 5; // Respect GitHub's rate limits
+    const allDiffs = [];
+    let processedCount = 0;
+    
+    console.log(`Starting diff calculation for ${forksToCompare.length} forks with batch size ${batchSize}`);
+    
+    for (let i = 0; i < forksToCompare.length; i += batchSize) {
+      const batch = forksToCompare.slice(i, i + batchSize);
+      const batchStart = performance.now();
       
-      allDiffs.push(diff);
-      let shouldContinue = await onGetDiff(diff);
-      if (shouldContinue === false) {
-        break;
+      // Process batch concurrently
+      const batchPromises = batch.map(async (fork) => {
+        try {
+          const diff = await this.getDiff(fork);
+          return diff;
+        } catch (error) {
+          console.error(`Error getting diff for ${fork.forkId}:`, error);
+          return null;
+        }
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      const validResults = batchResults.filter(diff => diff !== null);
+      allDiffs.push(...validResults);
+      
+      const batchEnd = performance.now();
+      console.log(`Batch ${Math.floor(i/batchSize) + 1} processed ${validResults.length}/${batch.length} diffs in ${batchEnd - batchStart}ms`);
+      
+      // Update progress for each diff
+      for (const diff of validResults) {
+        processedCount++;
+        const shouldContinue = await onGetDiff(diff);
+        if (shouldContinue === false) {
+          const end = performance.now();
+          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          return allDiffs;
+        }
+      }
+      
+      // Small delay to respect rate limits
+      if (i + batchSize < forksToCompare.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
+    
+    const end = performance.now();
+    console.log(`Total diff calculation took ${end - start}ms for ${allDiffs.length} diffs`);
     return allDiffs;
   }
 
@@ -218,6 +271,7 @@ class Api {
       }
       return ret;
     });
+    console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
     return forksToCompare;
   }
 }

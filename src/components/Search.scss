@@ -7,10 +7,14 @@
         display:flex;
         font-size:1.1em;
         padding:10px 5px;
-        width:60%;
+        flex: 1;
+        min-width: 0;
     }
     button {
         font-size:1.1em;
-        margin-left:auto;
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 10px 15px;
+        width: auto;
     }
 }

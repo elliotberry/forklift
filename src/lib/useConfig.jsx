@@ -1,9 +1,15 @@
 import React from 'react';
 import useLocalStorage from 'use-local-storage';
 import './Config.scss';
+
 const useConfig = () => {
   const [token, setToken] = useLocalStorage('token', '');
-  const Config = () => {
+  
+  const Config = React.memo(() => {
+    const handleTokenChange = React.useCallback((e) => {
+      setToken(e.target.value);
+    }, [setToken]);
+
     return (
       <>
         <form
@@ -18,19 +24,17 @@ const useConfig = () => {
               value={token}
               name="token"
               type="text"
-              onChange={e => {
-                setToken(e.target.value);
-              }}
+              onChange={handleTokenChange}
             />
-            <label for="token">Github token</label>
+            <label htmlFor="token">Github token</label>
           </div>
         </form>
       </>
     );
-  };
+  });
+  
   return {
     token,
-
     Config,
   };
 };
