@@ -1,6 +1,8 @@
 # forklift 🚛
 
-A slightly better GitHub fork network viewer. See all the forks of any repo, compare them to the original, and track what's changed.
+A slightly better GitHub fork network viewer. See all the forks of any repo, compare them to the original, and track the action.
+
+Demo: forklift-green.vercel.app
 
 ## What it does
 
@@ -15,7 +17,8 @@ A slightly better GitHub fork network viewer. See all the forks of any repo, com
 1. Clone this bad boy
 2. `npm install`
 3. `npm run dev`
-4. Enter a repo like `owner/repo-name` and hit search
+4. click on the config button and enter your GitHub token
+5. Enter a repo in format `owner/repo-name` and hit search
 
 ## Features
 
@@ -30,8 +33,8 @@ A slightly better GitHub fork network viewer. See all the forks of any repo, com
 
 - React 19 + Vite
 - GitHub API
-- SCSS for styling
-- React Table for data display
+- SCSS
+- Tanstack's React Table for data display
 
 ## License
 
@@ -39,4 +42,4 @@ The Unlicense - do whatever you want with it 🤷‍♂️
 
 ---
 
-Made with ❤️ by ɛʟʟɨօȶ b 
+Made by ɛʟʟɨօȶ
