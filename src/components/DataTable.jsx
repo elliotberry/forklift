@@ -46,7 +46,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   // Memoized columns definition to prevent recreation on every render
   const columns = useMemo(() => [
     {header: 'Owner', accessorKey: 'owner'},
-    {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},
+  
     {
       header: () => <>Commits<br />Ahead</>,
       accessorKey: 'commitsAhead',
@@ -65,6 +65,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
         return <span>{info.getValue()}</span>;
       },
     },
+    {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},
     {
       header: 'Commits List',
       accessorKey: 'commitsList',
@@ -83,17 +84,18 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       },
     },
     {
-      header: 'Created',
-      accessorKey: 'createdAt',
-      sortingFn: 'datetime',
-      cell: info => <TimeCell date={info.getValue()} />,
-    },
-    {
       header: 'Updated',
       accessorKey: 'updatedAt',
       sortingFn: 'datetime',
       cell: info => <TimeCell date={info.getValue()} />,
     },
+    {
+      header: 'Created',
+      accessorKey: 'createdAt',
+      sortingFn: 'datetime',
+      cell: info => <TimeCell date={info.getValue()} />,
+    },
+
   ], [prettyTimeFormat]);
 
   // Memoized paginated data
@@ -185,7 +187,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
         </div>
       )}
       
-      {data.length === 0 && <div>search for somethin'!</div>}
+      {data.length === 0 && <div>nothing here, time 2 search for somethin'!</div>}
     </div>
   );
 };

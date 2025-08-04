@@ -4,11 +4,21 @@ import './Config.scss';
 
 const useConfig = () => {
   const [token, setToken] = useLocalStorage('token', '');
+  const [loadCommits, setLoadCommits] = useLocalStorage('loadCommits', true);
+  const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
   
   const Config = React.memo(() => {
     const handleTokenChange = React.useCallback((e) => {
       setToken(e.target.value);
     }, [setToken]);
+
+    const handleLoadCommitsChange = React.useCallback((e) => {
+      setLoadCommits(e.target.checked);
+    }, [setLoadCommits]);
+
+    const handleHeaderAnimationChange = React.useCallback((e) => {
+      setHeaderAnimation(e.target.checked);
+    }, [setHeaderAnimation]);
 
     return (
       <>
@@ -28,13 +38,37 @@ const useConfig = () => {
             />
             <label htmlFor="token">Github token</label>
           </div>
+          <div className="field checkbox-field">
+            <input
+              id="loadCommits"
+              name="loadCommits"
+              type="checkbox"
+              checked={loadCommits}
+              onChange={handleLoadCommitsChange}
+            />
+            <label htmlFor="loadCommits">Load commits during search</label>
+          </div>
+          <div className="field checkbox-field">
+            <input
+              id="headerAnimation"
+              name="headerAnimation"
+              type="checkbox"
+              checked={headerAnimation}
+              onChange={handleHeaderAnimationChange}
+            />
+            <label htmlFor="headerAnimation">Enable header animation</label>
+          </div>
         </form>
       </>
     );
   });
+
+  Config.displayName = 'Config';
   
   return {
     token,
+    loadCommits,
+    headerAnimation,
     Config,
   };
 };

@@ -32,8 +32,8 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="error-boundary">
-          <h3>Something went wrong</h3>
-          <p>Please try refreshing the page or searching for a different repository.</p>
+          <h3>Something went weird</h3>
+          <p>Please try refreshing?</p>
           <button onClick={() => window.location.reload()}>Refresh Page</button>
         </div>
       );
@@ -48,7 +48,7 @@ ErrorBoundary.propTypes = {
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, Config} = useConfig();
+  const {token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -144,9 +144,14 @@ function App() {
 
         setLoading(false);
         setTableData(forks);
-        let forksToCompare = await api.getForksToCompare(forks);
-
-        await getDiffs(forksToCompare, api);
+        
+        // Only load diffs if the setting is enabled
+        if (loadCommits) {
+          let forksToCompare = await api.getForksToCompare(forks);
+          await getDiffs(forksToCompare, api);
+        } else {
+          console.log('Skipping diff loading as per user preference');
+        }
         
         logMemoryUsage('After search');
       } catch (error) {
@@ -162,7 +167,7 @@ function App() {
       <div className="App">
         <div className="container">
           <div className="grid-content bg-purple-dark">
-            <Header>
+            <Header headerAnimation={headerAnimation}>
               <button className="settings" onClick={openModal}>
                 <Settings />
               </button>

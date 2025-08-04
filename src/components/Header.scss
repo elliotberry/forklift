@@ -1,49 +1,49 @@
 header {
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 
-    display: block;
-    max-height: 100px;
-    margin-bottom: 10px;
+  display: block;
+  max-height: 100px;
+  margin-bottom: 10px;
 
-    h3 {
-        font-size: 10px;
-        font-style: italic;
-        color: #ffffff;
-        display: flex;
-    }
+  h3 {
+    font-size: 10px;
+    font-style: italic;
+    color: #ffffff;
+    display: flex;
+  }
 
-    h1 {
-        display: flex;
+  h1 {
+    display: flex;
 
-        color: #ffffff;
-        z-index: 1;
-        font-size: 4rem;
-        margin: 0px;
-    }
+    color: #ffffff;
+    z-index: 1;
+    font-size: 4rem;
+    margin: 0px;
+  }
 
-    .title-container {
-        display: flex;
-        position: absolute;
-        /* top: 0px; */
-        bottom: -3px;
-        width: 100%;
-        left: 5px;
-        z-index: 3;
-        align-items: flex-end;
-    }
+  .title-container {
+    display: flex;
+    position: absolute;
+    /* top: 0px; */
+    bottom: -3px;
+    width: 100%;
+    left: 5px;
+    z-index: 3;
+    align-items: flex-end;
+  }
 }
 
 button.settings {
-    appearance: none;
-    border: 0;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    color: #ffffff;
-    z-index: 333;
-    cursor: pointer;
+  appearance: none;
+  border: 0;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  color: #ffffff;
+  z-index: 333;
+  cursor: pointer;
 
 }
 
@@ -51,15 +51,31 @@ button.settings {
 /* animation */
 
 .area {
-    background: linear-gradient(to left, #8f94fb, #4e54c8);
-    width: 100%;
-    height: 140px;
-    overflow: hidden;
-    position: relative;
-    border-radius: 2px;
-    margin-bottom: 10px;
+  background: linear-gradient(to left, #8f94fb, #4e54c8);
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+
+
+@keyframes animate {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+    border-radius: 0;
   }
-  
+
+  100% {
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+    border-radius: 50%;
+  }
+}
+
+.animated {
   .circles {
     position: absolute;
     top: 0;
@@ -160,17 +176,20 @@ button.settings {
     animation-duration: 11s;
   }
   
-  @keyframes animate {
-    0% {
-      transform: translateY(0) rotate(0deg);
-      opacity: 1;
+}
+.not-animated {
+  .circles {
+    display: none;
+    li {
+      display: none;
+      background-image: none;
+      background-color: transparent;
       border-radius: 0;
-    }
-  
-    100% {
-      transform: translateY(-1000px) rotate(720deg);
+      animation: none;
+      width: 0;
+      height: 0;
       opacity: 0;
-      border-radius: 50%;
+      position: absolute;
     }
   }
-  
+}

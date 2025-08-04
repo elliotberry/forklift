@@ -28,13 +28,7 @@ const dataProperties = [
   },
 ];
 
-const columnsOptions = dataProperties.map((prop) => {
-  return {
-    prop: prop.prop,
-    label: prop.label,
-    enabled: true,
-  };
-});
+
 
 const originalRepoDataFormatter = (fork) => {
   return {
