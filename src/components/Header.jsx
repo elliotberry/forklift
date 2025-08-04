@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import './Header.scss';
 
-function DumbHeader({ children, headerAnimation = true }) {
+function Header({ children, headerAnimation = true }) {
   return (
     <header className={headerAnimation ? 'animated' : 'not-animated'}>
       {children}
@@ -10,8 +10,6 @@ function DumbHeader({ children, headerAnimation = true }) {
         <h1>forklift</h1>
         <h3>a slightly better github fork network view</h3>
       </div>
-
-      
         <div className="area">
           <ul className="circles">
             <li></li>
@@ -37,9 +35,9 @@ function DumbHeader({ children, headerAnimation = true }) {
   );
 }
 
-DumbHeader.propTypes = {
+Header.propTypes = {
   children: PropTypes.node,
   headerAnimation: PropTypes.bool,
 };
 
-export default DumbHeader;
+export default Header;

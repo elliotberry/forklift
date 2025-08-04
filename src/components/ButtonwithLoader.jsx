@@ -7,7 +7,7 @@ const ButtonWithLoader = ({children, onClick, ...props}) => {
   
   const handleClick = async () => {
     setLoading(true);
-    let res = await onClick();
+    const res = await onClick();
     if (res && res.success) {
       setLoading(false);
       setOutcome(true);

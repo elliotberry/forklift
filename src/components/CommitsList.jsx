@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import prettyBytes from 'pretty-bytes';
+
 
 import timeAgo from '../lib/time-ago.js';
 import './CommitsList.scss';
