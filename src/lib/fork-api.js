@@ -3,7 +3,6 @@ const forkObjectFormatter = function (fork) {
     id: fork.id,
     forkId: `${fork.owner.login}/${fork.name}`,
     fullName: fork.full_name,
-    //name: fork.name,
     defaultBranch: fork.default_branch,
     stars: fork.stargazers_count,
     forks: fork.forks,
@@ -39,8 +38,6 @@ class Api {
     };
     this.originalRepoString = originalRepoString;
     this.originalRepo = {};
-
-    this.forks = [];
     this.debug = debug;
     return this.init();
   }
@@ -49,7 +46,7 @@ class Api {
     console.error(`Error in github api file: ${error}`);
   }
 
-  async get(url, onGetURL = function () {}) {
+  async get(url) {
     const start = performance.now();
     try {
       const response = await fetch(url, this.config);
@@ -73,21 +70,7 @@ class Api {
       const end = performance.now();
       this.debug && console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
-      throw error; // Re-throw the error so calling code can handle it
-    }
-  }
-
-  getLimits() {
-    return this.rate;
-  }
-
-  async refreshLimits() {
-    try {
-      const url = 'https://api.github.com/rate_limit';
-      const response = await this.get(url);
-      if (response.ok) this.updateRate(response);
-    } catch (error) {
-      this.handleError(error);
+      throw error;
     }
   }
 
@@ -136,7 +119,7 @@ class Api {
     try {
       const fullName = this.originalRepo.full_name;
       const defaultBranch = this.originalRepo.default_branch;
-      const {defaultBranch: forkDefaultBranch, owner: forkOwner, forkid} = forkObject;
+      const {defaultBranch: forkDefaultBranch, owner: forkOwner} = forkObject;
       const url = `https://api.github.com/repos/${fullName}/compare/${defaultBranch}...${forkOwner}:${forkDefaultBranch}`;
       const data = await this.get(url);
 
@@ -149,12 +132,10 @@ class Api {
         return {
           sha: commit.sha,
           message: commit.commit.message,
-          // author: commit.author.name || commit.commit.author.name,
           date: commit.commit.author.date,
           url: commit.url,
         };
       });
-      //  delete data.commits;
       data.simpleSummary = this.summarizeChanges(data.files);
       data.forkId = forkObject.forkId;
       const end = performance.now();
@@ -184,8 +165,7 @@ class Api {
   async getSingleForkPage(page = 1) {
     try {
       const url = `https://api.github.com/repos/${this.originalRepoString}/forks?sort=stargazers&per_page=100&page=${page}`;
-      const someData = await this.get(url);
-      return someData;
+      return await this.get(url);
     } catch (error) {
       console.error(error);
       return [];
@@ -226,8 +206,7 @@ class Api {
       const requestStart = performance.now();
 
       try {
-        // Call onGetDiff before making the request
-        const shouldContinue = await onGetDiff(null); // Pass null to indicate a request is about to be made
+        const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {
           const end = performance.now();
           this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
@@ -237,7 +216,6 @@ class Api {
         const diff = await this.getDiff(fork);
         processedCount++;
 
-        // Call onGetDiff with the actual diff result
         const shouldContinueAfterDiff = await onGetDiff(diff);
         if (shouldContinueAfterDiff === false) {
           const end = performance.now();
@@ -250,13 +228,11 @@ class Api {
         const requestEnd = performance.now();
         this.debug && console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
 
-        // Small delay to respect rate limits
         if (i < forksToCompare.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       } catch (error) {
         this.debug && console.error(`Error getting diff for ${fork.forkId}:`, error);
-        // Still call onGetDiff even for errors to maintain progress tracking
         const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {
           const end = performance.now();
@@ -280,11 +256,7 @@ class Api {
     let originalRepo = this.originalRepo;
 
     const forksToCompare = allForks.filter(thisFork => {
-      let ret = false;
-      if (thisFork.original.size !== originalRepo.size || thisFork.pushedAt !== originalRepo.pushedAt) {
-        ret = true;
-      }
-      return ret;
+      return thisFork.original.size !== originalRepo.size || thisFork.pushedAt !== originalRepo.pushedAt;
     });
     this.debug && console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
     return forksToCompare;

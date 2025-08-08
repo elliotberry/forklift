@@ -37,8 +37,7 @@ const SizeCell = React.memo(({size}) => {
   return <span>{prettyBytes(size)}</span>;
 });
 
-const TimeCell = ({date, format=1}) => {
-
+const TimeCell = React.memo(({date, format=1}) => {
   let value = timeAgo(date);
   if (format === 2) {
     let d = Date.parse(date);
@@ -47,10 +46,9 @@ const TimeCell = ({date, format=1}) => {
       day: 'numeric',
       year: 'numeric'
     });
- 
   }
   return <span>{value}</span>;
-};
+});
 
 const OwnerCell = React.memo(({owner}) => {
   return (
@@ -149,14 +147,8 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  // Sort the rows based on the rank metadata in descending order
-  const sortedRows = useMemo(() => {
-    return table.getRowModel().rows.sort((a, b) => {
-      const aMeta = a.columnFiltersMeta.fuzzy ?? {rank: Infinity};
-      const bMeta = b.columnFiltersMeta.fuzzy ?? {rank: Infinity};
-      return aMeta.rank - bMeta.rank;
-    });
-  }, [table.getRowModel().rows]);
+  // Remove unused sorting logic
+  const sortedRows = table.getRowModel().rows;
 
   const handlePageChange = (newPage) => {
     setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));

@@ -1,29 +1,31 @@
-import React, {useState} from 'react';
-
-
+import React, {useState, useCallback} from 'react';
 import timeAgo from 'elliotisms/timeAgo';
 import './CommitsList.scss';
 
 // Memoized individual commit item component
 const CommitItem = React.memo(({commit, format}) => {
-  let date = timeAgo(commit.date, 1);
-  if (format === 2) {
-    let d = Date.parse(commit.date);
-    date = new Date(d).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  }
+  const formatDate = (dateString, format) => {
+    if (format === 2) {
+      const d = Date.parse(dateString);
+      return new Date(d).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+    return timeAgo(dateString, 1);
+  };
+
   return (
-  <div key={commit.sha}>
-    <a href={`${commit.url}`} target="_blank" rel="noopener noreferrer">
-      {commit.message}
-    </a>
-    <div>{commit.owner}</div>
-    <div>{date}</div>
-  </div>
-)});
+    <div key={commit.sha}>
+      <a href={`${commit.url}`} target="_blank" rel="noopener noreferrer">
+        {commit.message}
+      </a>
+      <div>{commit.owner}</div>
+      <div>{formatDate(commit.date, format)}</div>
+    </div>
+  );
+});
 
 const CommitsList = React.memo(({commits, format}) => {
   const [showCommits, setShowCommits] = useState(false);
@@ -33,9 +35,9 @@ const CommitsList = React.memo(({commits, format}) => {
     return null;
   }
   
-  const toggleCommits = () => {
-    setShowCommits(!showCommits);
-  };
+  const toggleCommits = useCallback(() => {
+    setShowCommits(prev => !prev);
+  }, []);
   
   return (
     <>

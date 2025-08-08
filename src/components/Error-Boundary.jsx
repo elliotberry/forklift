@@ -1,13 +1,10 @@
-﻿import React, {useState, useEffect, useMemo} from 'react';
+﻿import React from 'react';
 import PropTypes from 'prop-types';
-// Error Boundary Component
-
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
-
   }
   
   static getDerivedStateFromError(error) {
@@ -22,9 +19,9 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="error-boundary">
-          <h3>Something went weird</h3>
-          <pre><code>{this.error}</code></pre>
-          <p>Please try refreshing?</p>
+          <h3>Something went wrong</h3>
+          <pre><code>{this.state.error?.message || 'Unknown error'}</code></pre>
+          <p>Please try refreshing the page</p>
           <button onClick={() => window.location.reload()}>Refresh Page</button>
         </div>
       );
