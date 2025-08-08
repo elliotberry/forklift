@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {debounce} from '../lib/util.js';
+import React, {useState, useCallback} from 'react';
+
 import './Search.scss';
 
 const SearchInput = React.memo(({setError, onQueryChange, loading}) => {

@@ -8,42 +8,13 @@ import SearchInput from './components/Search.jsx';
 import useModal from './lib/useModal';
 import {Api} from './lib/fork-api.js';
 import LoadingBar from './components/LoadingBar.jsx';
-import './App.scss';
+import ErrorBoundary from './components/Error-Boundary.jsx';
 import useError from './lib/useError';
 import {getMinutesUntil, measureAsyncPerformance, logMemoryUsage} from './lib/util.js';
+import './App.scss';
 
-// Error Boundary Component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  
-  componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="error-boundary">
-          <h3>Something went weird</h3>
-          <p>Please try refreshing?</p>
-          <button onClick={() => window.location.reload()}>Refresh Page</button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
-ErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired,
-};
+
 
 function App() {
   const {Modal, openModal} = useModal();
