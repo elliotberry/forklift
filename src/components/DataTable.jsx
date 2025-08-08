@@ -29,17 +29,28 @@ const MemoizedRow = React.memo(({row}) => {
 });
 
 // Memoized cell renderers for better performance
-const CommitsCell = React.memo(({commits}) => {
-  return <CommitsList commits={commits} />;
+const CommitsCell = React.memo(({commits, format}) => {
+  return <CommitsList commits={commits} format={format} />;
 });
 
 const SizeCell = React.memo(({size}) => {
   return <span>{prettyBytes(size)}</span>;
 });
 
-const TimeCell = React.memo(({date}) => {
-  return <span>{timeAgo(date)}</span>;
-});
+const TimeCell = ({date, format=1}) => {
+
+  let value = timeAgo(date);
+  if (format === 2) {
+    let d = Date.parse(date);
+    value = new Date(d).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+ 
+  }
+  return <span>{value}</span>;
+};
 
 const OwnerCell = React.memo(({owner}) => {
   return (
@@ -92,7 +103,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       sortingFn: 'basic',
       cell: info => {
         let commitsList = info.getValue();
-        return <CommitsCell commits={commitsList} />;
+        return <CommitsCell format={prettyTimeFormat} commits={commitsList} />;
       },
     },
     {
@@ -107,13 +118,13 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
       header: 'Updated',
       accessorKey: 'updatedAt',
       sortingFn: 'datetime',
-      cell: info => <TimeCell date={info.getValue()} />,
+      cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
     },
     {
       header: 'Created',
       accessorKey: 'createdAt',
       sortingFn: 'datetime',
-      cell: info => <TimeCell date={info.getValue()} />,
+      cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
     },
 
   ], [prettyTimeFormat]);

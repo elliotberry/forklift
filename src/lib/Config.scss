@@ -1,5 +1,13 @@
 .config {
+    & > .small {
+        font-size: 0.8em;
+        color: #666;
+        margin-bottom: 13px;
+    display: block;
+    }
     .field {
+        display:flex;
+    
         label {
             display: block;
             margin-bottom: 5px;

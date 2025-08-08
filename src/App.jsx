@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useMemo} from 'react';
 
-
 import Header from './components/Header.jsx';
 import DataTable from './components/DataTable.jsx';
 import useConfig from './lib/useConfig';
@@ -18,7 +17,7 @@ import './App.scss';
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {debug, token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
+  const {debug, token, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -175,11 +174,12 @@ function App() {
             )}
             <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
           </div>
+        
           {enhancedTableData && enhancedTableData?.length > 0 && (
             <DataTable 
-              showForkDiffs={showForkDiffs} 
+             
               data={enhancedTableData} 
-              prettySizeEnabled={prettySizeEnabled} 
+              
               prettyTimeFormat={prettyTimeFormat} 
               dataLoading={loading} 
               repoDiffInfo={repoDiffInfo} 
