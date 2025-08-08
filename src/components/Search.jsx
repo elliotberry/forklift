@@ -11,6 +11,11 @@ const SearchInput = React.memo(({setError, onQueryChange, loading}) => {
 
     let repoQuery = e.target.elements[0].value.trim();
     
+    if (!repoQuery) {
+      setError('Please enter a repository name or GitHub URL');
+      return;
+    }
+    
     // Function to extract repo info from GitHub URL
     const extractRepoFromUrl = (url) => {
       // Match patterns like:

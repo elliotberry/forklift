@@ -56,7 +56,7 @@ class Api {
     const start = performance.now();
     try {
       const response = await fetch(url, this.config);
-      if (response.status !== 200 || response.ok === false) {
+      if (!response.ok) {
         let error = `${response.status} ${response.statusText}`;
         try {
           const data = await response.json();
@@ -65,7 +65,7 @@ class Api {
         catch (e) {
           console.error(e);
         }
-        throw new Error(`${response.status} ${response.statusText}`);
+        throw new Error(error);
      } else {
         this.updateRate(response);
         const data = await response.json();
@@ -77,6 +77,7 @@ class Api {
       const end = performance.now();
       console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
+      throw error; // Re-throw the error so calling code can handle it
     }
   }
 
@@ -142,6 +143,12 @@ class Api {
       const {defaultBranch: forkDefaultBranch, owner: forkOwner, forkid} = forkObject;
       const url = `https://api.github.com/repos/${fullName}/compare/${defaultBranch}...${forkOwner}:${forkDefaultBranch}`;
       const data = await this.get(url);
+      
+      if (!data) {
+        console.warn(`No diff data returned for ${forkObject.forkId}`);
+        return null;
+      }
+      
       data.commitsList = data.commits.map(commit => {
         return {
           sha: commit.sha,
@@ -166,8 +173,16 @@ class Api {
   }
 
   async getOriginalRepo() {
-    const originalRepo = await this.get(`https://api.github.com/repos/${this.originalRepoString}`);
-    return originalRepo;
+    try {
+      const originalRepo = await this.get(`https://api.github.com/repos/${this.originalRepoString}`);
+      if (!originalRepo) {
+        throw new Error(`Repository ${this.originalRepoString} not found or not accessible`);
+      }
+      return originalRepo;
+    } catch (error) {
+      console.error(`Failed to get original repo ${this.originalRepoString}:`, error);
+      throw error;
+    }
   }
 
   async getSingleForkPage(page = 1) {

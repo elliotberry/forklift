@@ -67,10 +67,12 @@ function App() {
 
   // Memoized diff map for O(1) lookups
   useEffect(() => {
-    if (repoDiffInfo.length > 0) {
+    if (repoDiffInfo.length > 0 && repoDiffInfo[0].id) {
+      console.log(repoDiffInfo);
       const newDiffMap = new Map();
       repoDiffInfo.forEach(diff => {
-        newDiffMap.set(diff.forkId, diff);
+        console.log(`Adding diff for fork ID: ${diff}`);
+        newDiffMap.set(diff.id, diff);
       });
       setDiffMap(newDiffMap);
     }
@@ -132,14 +134,16 @@ function App() {
         setTableData([]);
         setRepoDiffInfo([]);
         setDiffMap(new Map());
+        setCancelRequested(false);
         
         let forks = await api.getForks(async function (forks) {
-          setTableData(prevTableData => [...prevTableData, ...forks]);
           if (cancelRequested === true) {
             console.log('cancel requested');
             setCancelRequested(false);
             return false;
           }
+          // Only update if we're still loading (not cancelled)
+          setTableData(prevTableData => [...prevTableData, ...forks]);
         });
 
         setLoading(false);
@@ -157,7 +161,7 @@ function App() {
       } catch (error) {
         console.error('Search failed:', error);
         setLoading(false);
-        handleError('Search failed. Please try again.');
+        handleError(`Search failed: ${error.message}`);
       }
     });
   }
