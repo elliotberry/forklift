@@ -25,7 +25,7 @@ const forkObjectFormatter = function (fork) {
 };
 
 class Api {
-  constructor(originalRepoString, token, onRateLimit = function () {}) {
+  constructor(originalRepoString, token, onRateLimit = function () {}, debug = false) {
     this.config = token
       ? {
           headers: {
@@ -43,8 +43,7 @@ class Api {
     this.originalRepo = {};
 
     this.forks = [];
-
-    console.log('init Api');
+    this.debug = debug;
     return this.init();
   }
 
@@ -70,12 +69,12 @@ class Api {
         this.updateRate(response);
         const data = await response.json();
         const end = performance.now();
-        console.log(`API call to ${url} took ${end - start}ms`);
+       this.debug && console.log(`API call to ${url} took ${end - start}ms`);
         return data;
       }
     } catch (error) {
       const end = performance.now();
-      console.error(`API call to ${url} failed after ${end - start}ms:`, error);
+     this.debug && console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
       throw error; // Re-throw the error so calling code can handle it
     }
@@ -162,7 +161,7 @@ class Api {
       data.simpleSummary = this.summarizeChanges(data.files);
       data.forkId = `${forkObject.fullName}`;
       const end = performance.now();
-      console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms`);
+     this.debug && console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms`);
       return data;
     } catch (error) {
       const end = performance.now();
@@ -201,7 +200,7 @@ class Api {
     let numberOfPages = Math.ceil(this.originalRepo.forks / 100);
 
     let asyncIterator = Array.from({length: numberOfPages}, (_, i) => i + 1);
-    console.log(`getting ${numberOfPages} pages of forks`);
+  this.debug &&  console.log(`getting ${numberOfPages} pages of forks`);
     let allForks = [];
     for await (let page of asyncIterator) {
       let forks = await this.getSingleForkPage(page);
@@ -214,7 +213,7 @@ class Api {
       }
     }
     const end = performance.now();
-    console.log(`Total forks fetch took ${end - start}ms for ${allForks.length} forks`);
+   this.debug && console.log(`Total forks fetch took ${end - start}ms for ${allForks.length} forks`);
     return allForks;
   }
 
@@ -223,7 +222,7 @@ class Api {
     const allDiffs = [];
     let processedCount = 0;
     
-    console.log(`Starting diff calculation for ${forksToCompare.length} forks`);
+   this.debug && console.log(`Starting diff calculation for ${forksToCompare.length} forks`);
     
     for (let i = 0; i < forksToCompare.length; i++) {
       const fork = forksToCompare[i];
@@ -234,7 +233,7 @@ class Api {
         const shouldContinue = await onGetDiff(null); // Pass null to indicate a request is about to be made
         if (shouldContinue === false) {
           const end = performance.now();
-          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+        this.debug &&  console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
         
@@ -245,14 +244,14 @@ class Api {
         const shouldContinueAfterDiff = await onGetDiff(diff);
         if (shouldContinueAfterDiff === false) {
           const end = performance.now();
-          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+         this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
         
         allDiffs.push(diff);
         
         const requestEnd = performance.now();
-        console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
+       this.debug && console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
         
         // Small delay to respect rate limits
         if (i < forksToCompare.length - 1) {
@@ -260,19 +259,19 @@ class Api {
         }
         
       } catch (error) {
-        console.error(`Error getting diff for ${fork.forkId}:`, error);
+       this.debug && console.error(`Error getting diff for ${fork.forkId}:`, error);
         // Still call onGetDiff even for errors to maintain progress tracking
         const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {
           const end = performance.now();
-          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+         this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
       }
     }
     
     const end = performance.now();
-    console.log(`Total diff calculation took ${end - start}ms for ${allDiffs.length} diffs`);
+   this.debug && console.log(`Total diff calculation took ${end - start}ms for ${allDiffs.length} diffs`);
     return allDiffs;
   }
 
@@ -292,7 +291,7 @@ class Api {
       }
       return ret;
     });
-    console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
+   this.debug && console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
     return forksToCompare;
   }
 }
