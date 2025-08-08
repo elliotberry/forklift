@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useMemo} from 'react';
-import PropTypes from 'prop-types';
+
 
 import Header from './components/Header.jsx';
 import DataTable from './components/DataTable.jsx';
@@ -18,7 +18,7 @@ import './App.scss';
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, crazyMode, Config} = useConfig();
+  const {debug, token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -99,7 +99,7 @@ function App() {
       try {
         logMemoryUsage('Before search');
         
-        let api = await new Api(repoString, token, onRateLimit);
+        let api = await new Api(repoString, token, onRateLimit, debug);
         setLoading(true);
         setTableData([]);
         setRepoDiffInfo([]);
@@ -141,7 +141,7 @@ function App() {
       <div className="App">
         <div className="container">
           <div className="grid-content bg-purple-dark">
-            <Header headerAnimation={headerAnimation} crazyMode={crazyMode}>
+            <Header headerAnimation={headerAnimation} >
               <button className="settings" onClick={openModal}>
                 <img src="./settings.svg" alt="Settings" />
               </button>
