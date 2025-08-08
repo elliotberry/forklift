@@ -37,12 +37,14 @@ function App() {
 
   // Memoized diff map for O(1) lookups
   useEffect(() => {
-    if (repoDiffInfo.length > 0 && repoDiffInfo[0]?.id) {
+    if (repoDiffInfo.length > 0 && repoDiffInfo[0]?.forkId) {
       console.log(repoDiffInfo);
       const newDiffMap = new Map();
       repoDiffInfo.forEach(diff => {
-        console.log(`Adding diff for fork ID: ${diff}`);
-        newDiffMap.set(diff.id, diff);
+        if (diff && diff.forkId) {
+          console.log(`Adding diff for fork ID: ${diff.forkId}`);
+          newDiffMap.set(diff.forkId, diff);
+        }
       });
       setDiffMap(newDiffMap);
     }
@@ -50,9 +52,14 @@ function App() {
 
   // Memoized table data with diff info
   const enhancedTableData = useMemo(() => {
+    console.log('Enhanced table data - tableData length:', tableData.length);
+    console.log('Enhanced table data - diffMap size:', diffMap.size);
+    console.log('Enhanced table data - diffMap keys:', Array.from(diffMap.keys()));
+    
     return tableData.map(fork => {
       const diff = diffMap.get(fork.forkId);
       if (diff) {
+        console.log(`Found diff for ${fork.forkId}, commits:`, diff.commitsList?.length || 0);
         return {
           ...fork,
           diffInfo: diff,
@@ -61,6 +68,8 @@ function App() {
           commitsAhead: diff.ahead_by,
           commitsBehind: diff.behind_by
         };
+      } else {
+        console.log(`No diff found for ${fork.forkId}`);
       }
       return fork;
     });
@@ -80,8 +89,11 @@ function App() {
       await api.getAllDiffs(forks, async function (diff) {
         i++;
 
-        repoDiffInfo = [...repoDiffInfo, diff];
-        setRepoDiffInfo(repoDiffInfo);
+        // Only add non-null diffs to the array
+        if (diff) {
+          repoDiffInfo = [...repoDiffInfo, diff];
+          setRepoDiffInfo(repoDiffInfo);
+        }
         setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
         if (cancelRequested === true) {
           console.log('cancel requested');

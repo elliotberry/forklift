@@ -159,9 +159,9 @@ class Api {
       });
       //  delete data.commits;
       data.simpleSummary = this.summarizeChanges(data.files);
-      data.forkId = `${forkObject.fullName}`;
+      data.forkId = forkObject.forkId;
       const end = performance.now();
-     this.debug && console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms`);
+     this.debug && console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms, commits: ${data.commitsList.length}`);
       return data;
     } catch (error) {
       const end = performance.now();

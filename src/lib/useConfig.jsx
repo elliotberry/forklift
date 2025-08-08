@@ -7,6 +7,9 @@ const useConfig = () => {
   const [loadCommits, setLoadCommits] = useLocalStorage('loadCommits', true);
   const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
   const [debug, setDebug] = useLocalStorage('debug', false);
+  const [showForkDiffs, setShowForkDiffs] = useLocalStorage('showForkDiffs', true);
+  const [prettySizeEnabled, setPrettySizeEnabled] = useLocalStorage('prettySizeEnabled', true);
+  const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
   
   const Config = React.memo(() => {
     const handleTokenChange = React.useCallback((e) => {
@@ -24,6 +27,18 @@ const useConfig = () => {
     const handleDebugChange = React.useCallback((e) => {
       setDebug(e.target.checked);
     }, [setDebug]);
+
+    const handleShowForkDiffsChange = React.useCallback((e) => {
+      setShowForkDiffs(e.target.checked);
+    }, [setShowForkDiffs]);
+
+    const handlePrettySizeEnabledChange = React.useCallback((e) => {
+      setPrettySizeEnabled(e.target.checked);
+    }, [setPrettySizeEnabled]);
+
+    const handlePrettyTimeFormatChange = React.useCallback((e) => {
+      setPrettyTimeFormat(parseInt(e.target.value));
+    }, [setPrettyTimeFormat]);
 
     return (
       <>
@@ -65,6 +80,36 @@ const useConfig = () => {
           </div>
           <div className="field checkbox-field">
             <input
+              id="showForkDiffs"
+              name="showForkDiffs"
+              type="checkbox"
+              checked={showForkDiffs}
+              onChange={handleShowForkDiffsChange}
+            />
+            <label htmlFor="showForkDiffs">Show fork diffs</label>
+          </div>
+          <div className="field checkbox-field">
+            <input
+              id="prettySizeEnabled"
+              name="prettySizeEnabled"
+              type="checkbox"
+              checked={prettySizeEnabled}
+              onChange={handlePrettySizeEnabledChange}
+            />
+            <label htmlFor="prettySizeEnabled">Pretty size format</label>
+          </div>
+          <div className="field">
+            <select
+              value={prettyTimeFormat}
+              onChange={handlePrettyTimeFormatChange}
+            >
+              <option value={1}>Time format 1</option>
+              <option value={2}>Time format 2</option>
+            </select>
+            <label htmlFor="prettyTimeFormat">Time format</label>
+          </div>
+          <div className="field checkbox-field">
+            <input
               id="debug"
               name="debug"
               type="checkbox"
@@ -85,6 +130,9 @@ const useConfig = () => {
     loadCommits,
     headerAnimation,
     debug,
+    showForkDiffs,
+    prettySizeEnabled,
+    prettyTimeFormat,
     Config,
   };
 };
