@@ -12,7 +12,6 @@
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
     "awesome-debounce-promise": "^2.1.0",
-    "feather-icons": "^4.29.2",
     "pretty-bytes": "^7.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

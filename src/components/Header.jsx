@@ -2,9 +2,20 @@ import PropTypes from 'prop-types';
 
 import './Header.scss';
 
-function Header({ children, headerAnimation = true }) {
+function Header({ children, headerAnimation = true, crazyMode = false }) {
+  const headerClasses = [];
+  
+  if (headerAnimation) {
+    headerClasses.push('animated');
+    if (crazyMode) {
+      headerClasses.push('crazy');
+    }
+  } else {
+    headerClasses.push('not-animated');
+  }
+
   return (
-    <header className={headerAnimation ? 'animated' : 'not-animated'}>
+    <header className={headerClasses.join(' ')}>
       {children}
       <div className="title-container">
         <h1>forklift</h1>
@@ -22,12 +33,7 @@ function Header({ children, headerAnimation = true }) {
             <li></li>
             <li></li>
             <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+       
           </ul>
         </div>
       
@@ -38,6 +44,7 @@ function Header({ children, headerAnimation = true }) {
 Header.propTypes = {
   children: PropTypes.node,
   headerAnimation: PropTypes.bool,
+  crazyMode: PropTypes.bool,
 };
 
 export default Header;

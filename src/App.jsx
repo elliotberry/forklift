@@ -6,10 +6,9 @@ import DataTable from './components/DataTable.jsx';
 import useConfig from './lib/useConfig';
 import SearchInput from './components/Search.jsx';
 import useModal from './lib/useModal';
-import {Settings} from 'react-feather';
 import {Api} from './lib/fork-api.js';
 import LoadingBar from './components/LoadingBar.jsx';
-import './index.css';
+import './App.scss';
 import useError from './lib/useError';
 import {getMinutesUntil, measureAsyncPerformance, logMemoryUsage} from './lib/util.js';
 
@@ -48,7 +47,7 @@ ErrorBoundary.propTypes = {
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
+  const {token, showForkDiffs, prettySizeEnabled, prettyTimeFormat, loadCommits, headerAnimation, crazyMode, Config} = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -171,9 +170,9 @@ function App() {
       <div className="App">
         <div className="container">
           <div className="grid-content bg-purple-dark">
-            <Header headerAnimation={headerAnimation}>
+            <Header headerAnimation={headerAnimation} crazyMode={crazyMode}>
               <button className="settings" onClick={openModal}>
-                <Settings />
+                <img src="./settings.svg" alt="Settings" />
               </button>
             </Header>
             <Error />
