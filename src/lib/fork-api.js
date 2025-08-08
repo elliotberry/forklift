@@ -1,6 +1,4 @@
 const forkObjectFormatter = function (fork) {
-
-
   return {
     id: fork.id,
     forkId: `${fork.owner.login}/${fork.name}`,
@@ -60,21 +58,20 @@ class Api {
         try {
           const data = await response.json();
           error = error + `: ${JSON.stringify(data, null, 2)}`;
-        }
-        catch (e) {
+        } catch (e) {
           console.error(e);
         }
         throw new Error(error);
-     } else {
+      } else {
         this.updateRate(response);
         const data = await response.json();
         const end = performance.now();
-       this.debug && console.log(`API call to ${url} took ${end - start}ms`);
+        this.debug && console.log(`API call to ${url} took ${end - start}ms`);
         return data;
       }
     } catch (error) {
       const end = performance.now();
-     this.debug && console.error(`API call to ${url} failed after ${end - start}ms:`, error);
+      this.debug && console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
       throw error; // Re-throw the error so calling code can handle it
     }
@@ -142,26 +139,26 @@ class Api {
       const {defaultBranch: forkDefaultBranch, owner: forkOwner, forkid} = forkObject;
       const url = `https://api.github.com/repos/${fullName}/compare/${defaultBranch}...${forkOwner}:${forkDefaultBranch}`;
       const data = await this.get(url);
-      
+
       if (!data) {
         console.warn(`No diff data returned for ${forkObject.forkId}`);
         return null;
       }
-      
+
       data.commitsList = data.commits.map(commit => {
         return {
           sha: commit.sha,
           message: commit.commit.message,
-         // author: commit.author.name || commit.commit.author.name,
+          // author: commit.author.name || commit.commit.author.name,
           date: commit.commit.author.date,
-          url: commit.url
+          url: commit.url,
         };
       });
       //  delete data.commits;
       data.simpleSummary = this.summarizeChanges(data.files);
       data.forkId = forkObject.forkId;
       const end = performance.now();
-     this.debug && console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms, commits: ${data.commitsList.length}`);
+      this.debug && console.log(`Diff calculation for ${forkObject.forkId} took ${end - start}ms, commits: ${data.commitsList.length}`);
       return data;
     } catch (error) {
       const end = performance.now();
@@ -200,20 +197,20 @@ class Api {
     let numberOfPages = Math.ceil(this.originalRepo.forks / 100);
 
     let asyncIterator = Array.from({length: numberOfPages}, (_, i) => i + 1);
-  this.debug &&  console.log(`getting ${numberOfPages} pages of forks`);
+    this.debug && console.log(`getting ${numberOfPages} pages of forks`);
     let allForks = [];
     for await (let page of asyncIterator) {
       let forks = await this.getSingleForkPage(page);
       forks = forks.map(forkObjectFormatter);
       let shouldContinue = await onGetForks(forks);
-      
+
       allForks = allForks.concat(forks);
       if (shouldContinue === false) {
         break;
       }
     }
     const end = performance.now();
-   this.debug && console.log(`Total forks fetch took ${end - start}ms for ${allForks.length} forks`);
+    this.debug && console.log(`Total forks fetch took ${end - start}ms for ${allForks.length} forks`);
     return allForks;
   }
 
@@ -221,63 +218,61 @@ class Api {
     const start = performance.now();
     const allDiffs = [];
     let processedCount = 0;
-    
-   this.debug && console.log(`Starting diff calculation for ${forksToCompare.length} forks`);
-    
+
+    this.debug && console.log(`Starting diff calculation for ${forksToCompare.length} forks`);
+
     for (let i = 0; i < forksToCompare.length; i++) {
       const fork = forksToCompare[i];
       const requestStart = performance.now();
-      
+
       try {
         // Call onGetDiff before making the request
         const shouldContinue = await onGetDiff(null); // Pass null to indicate a request is about to be made
         if (shouldContinue === false) {
           const end = performance.now();
-        this.debug &&  console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
-        
+
         const diff = await this.getDiff(fork);
         processedCount++;
-        
+
         // Call onGetDiff with the actual diff result
         const shouldContinueAfterDiff = await onGetDiff(diff);
         if (shouldContinueAfterDiff === false) {
           const end = performance.now();
-         this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
-        
+
         allDiffs.push(diff);
-        
+
         const requestEnd = performance.now();
-       this.debug && console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
-        
+        this.debug && console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
+
         // Small delay to respect rate limits
         if (i < forksToCompare.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
       } catch (error) {
-       this.debug && console.error(`Error getting diff for ${fork.forkId}:`, error);
+        this.debug && console.error(`Error getting diff for ${fork.forkId}:`, error);
         // Still call onGetDiff even for errors to maintain progress tracking
         const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {
           const end = performance.now();
-         this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
       }
     }
-    
+
     const end = performance.now();
-   this.debug && console.log(`Total diff calculation took ${end - start}ms for ${allDiffs.length} diffs`);
+    this.debug && console.log(`Total diff calculation took ${end - start}ms for ${allDiffs.length} diffs`);
     return allDiffs;
   }
 
   async init() {
     this.originalRepo = await this.getOriginalRepo();
-
     return this;
   }
 
@@ -291,7 +286,7 @@ class Api {
       }
       return ret;
     });
-   this.debug && console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
+    this.debug && console.log(`Filtered ${forksToCompare.length} forks to compare out of ${allForks.length} total`);
     return forksToCompare;
   }
 }

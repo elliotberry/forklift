@@ -1,31 +1,32 @@
 .config {
-    & > .small {
+    &>.small {
         font-size: 0.8em;
         color: #666;
         margin-bottom: 13px;
-    display: block;
+        display: block;
     }
+
     .field {
-        display:flex;
-    
+        display: flex;
+
         label {
             display: block;
             margin-bottom: 5px;
             font-size: .8em;
         }
-        
+
         &.checkbox-field {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-top: 15px;
-            
+
             input[type="checkbox"] {
                 width: auto;
                 margin: 0;
                 cursor: pointer;
             }
-            
+
             label {
                 margin: 0;
                 cursor: pointer;

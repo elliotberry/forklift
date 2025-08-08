@@ -11,11 +11,9 @@
   "repository": "https://github.com/elliotberry/forklift.git",
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
-    "awesome-debounce-promise": "^2.1.0",
     "pretty-bytes": "^7.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-feather": "^2.0.10",
     "sass": "^1.90.0",
     "use-local-storage": "^3.0.0"
   },
@@ -29,7 +27,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
-    "release-it": "^19.0.4",
+    "release-it": "^17.1.1",
     "vite": "^7.1.1"
   }
 }
