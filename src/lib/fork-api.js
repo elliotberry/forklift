@@ -205,48 +205,54 @@ class Api {
 
   async getAllDiffs(forksToCompare, onGetDiff = async function () {}) {
     const start = performance.now();
-    const batchSize = 5; // Respect GitHub's rate limits
     const allDiffs = [];
     let processedCount = 0;
     
-    console.log(`Starting diff calculation for ${forksToCompare.length} forks with batch size ${batchSize}`);
+    console.log(`Starting diff calculation for ${forksToCompare.length} forks`);
     
-    for (let i = 0; i < forksToCompare.length; i += batchSize) {
-      const batch = forksToCompare.slice(i, i + batchSize);
-      const batchStart = performance.now();
+    for (let i = 0; i < forksToCompare.length; i++) {
+      const fork = forksToCompare[i];
+      const requestStart = performance.now();
       
-      // Process batch concurrently
-      const batchPromises = batch.map(async (fork) => {
-        try {
-          const diff = await this.getDiff(fork);
-          return diff;
-        } catch (error) {
-          console.error(`Error getting diff for ${fork.forkId}:`, error);
-          return null;
-        }
-      });
-      
-      const batchResults = await Promise.all(batchPromises);
-      const validResults = batchResults.filter(diff => diff !== null);
-      allDiffs.push(...validResults);
-      
-      const batchEnd = performance.now();
-      console.log(`Batch ${Math.floor(i/batchSize) + 1} processed ${validResults.length}/${batch.length} diffs in ${batchEnd - batchStart}ms`);
-      
-      // Update progress for each diff
-      for (const diff of validResults) {
-        processedCount++;
-        const shouldContinue = await onGetDiff(diff);
+      try {
+        // Call onGetDiff before making the request
+        const shouldContinue = await onGetDiff(null); // Pass null to indicate a request is about to be made
         if (shouldContinue === false) {
           const end = performance.now();
           console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
           return allDiffs;
         }
-      }
-      
-      // Small delay to respect rate limits
-      if (i + batchSize < forksToCompare.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const diff = await this.getDiff(fork);
+        processedCount++;
+        
+        // Call onGetDiff with the actual diff result
+        const shouldContinueAfterDiff = await onGetDiff(diff);
+        if (shouldContinueAfterDiff === false) {
+          const end = performance.now();
+          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          return allDiffs;
+        }
+        
+        allDiffs.push(diff);
+        
+        const requestEnd = performance.now();
+        console.log(`Processed diff for ${fork.forkId} in ${requestEnd - requestStart}ms (${processedCount}/${forksToCompare.length})`);
+        
+        // Small delay to respect rate limits
+        if (i < forksToCompare.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+      } catch (error) {
+        console.error(`Error getting diff for ${fork.forkId}:`, error);
+        // Still call onGetDiff even for errors to maintain progress tracking
+        const shouldContinue = await onGetDiff(null);
+        if (shouldContinue === false) {
+          const end = performance.now();
+          console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);
+          return allDiffs;
+        }
       }
     }
     
