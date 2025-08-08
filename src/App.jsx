@@ -67,7 +67,7 @@ function App() {
 
   // Memoized diff map for O(1) lookups
   useEffect(() => {
-    if (repoDiffInfo.length > 0 && repoDiffInfo[0].id) {
+    if (repoDiffInfo.length > 0 && repoDiffInfo[0]?.id) {
       console.log(repoDiffInfo);
       const newDiffMap = new Map();
       repoDiffInfo.forEach(diff => {
