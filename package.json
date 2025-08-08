@@ -11,6 +11,7 @@
   "repository": "https://github.com/elliotberry/forklift.git",
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
+    "elliotisms": "^0.0.52",
     "pretty-bytes": "^7.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

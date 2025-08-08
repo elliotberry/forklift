@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 
 
-import timeAgo from '../lib/time-ago.js';
+import timeAgo from 'elliotisms/timeAgo';
 import './CommitsList.scss';
 
 // Memoized individual commit item component
