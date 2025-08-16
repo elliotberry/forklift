@@ -12,9 +12,6 @@ import useError from './lib/useError';
 import {getMinutesUntil, measureAsyncPerformance, logMemoryUsage} from './lib/util.js';
 import './App.scss';
 
-
-
-
 function App() {
   const {Modal, openModal} = useModal();
   const {debug, token, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
@@ -25,15 +22,23 @@ function App() {
   const [rateLimitInfo, setRateLimitInfo] = useState(null);
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [tableData, setTableData] = useState([]);
-
+  const [tokenNotFound, setTokenNotFound] = useState(false);
   const [repoDiffInfo, setRepoDiffInfo] = useState([]);
   const [diffMap, setDiffMap] = useState(new Map());
   const {handleError, Error} = useError();
-  
+
   const tryCancel = () => {
     setCancelRequested(true);
   };
 
+  useEffect(() => {
+    //check if token is set and valid and if not, set tokenNotFound to true
+    if (!token || token.trim() === '') {
+      setTokenNotFound(true);
+    } else {
+      setTokenNotFound(false);
+    }
+  }, [token]);
   // Memoized diff map for O(1) lookups
   useEffect(() => {
     if (repoDiffInfo.length > 0 && repoDiffInfo[0]?.forkId) {
@@ -58,7 +63,7 @@ function App() {
           commitsList: diff.commitsList,
           changes: diff.simpleSummary,
           commitsAhead: diff.ahead_by,
-          commitsBehind: diff.behind_by
+          commitsBehind: diff.behind_by,
         };
       }
       return fork;
@@ -100,14 +105,14 @@ function App() {
     return measureAsyncPerformance('startSearch', async () => {
       try {
         logMemoryUsage('Before search');
-        
+
         let api = await new Api(repoString, token, onRateLimit, debug);
         setLoading(true);
         setTableData([]);
         setRepoDiffInfo([]);
         setDiffMap(new Map());
         setCancelRequested(false);
-        
+
         let forks = await api.getForks(async function (forks) {
           if (cancelRequested === true) {
             console.log('cancel requested');
@@ -120,7 +125,7 @@ function App() {
 
         setLoading(false);
         setTableData(forks);
-        
+
         // Only load diffs if the setting is enabled
         if (loadCommits) {
           let forksToCompare = await api.getForksToCompare(forks);
@@ -128,7 +133,7 @@ function App() {
         } else {
           console.log('Skipping diff loading as per user preference');
         }
-        
+
         logMemoryUsage('After search');
       } catch (error) {
         console.error('Search failed:', error);
@@ -143,12 +148,23 @@ function App() {
       <div className="App">
         <div className="container">
           <div className="grid-content bg-purple-dark">
-            <Header headerAnimation={headerAnimation} >
-              <button className="settings" onClick={openModal}>
-                <img src="./settings.svg" alt="Settings" />
-              </button>
+            <Header headerAnimation={headerAnimation}>
+              <div className="settings-container">
+                {tokenNotFound && (
+                  <div className="token-warning">
+                    github token not found. this will result in diminished capacity to get fork info.{' '}
+                    <a src="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">
+                      here's some documentation on how to generate one.
+                    </a>{' '}
+                  </div>
+                )}
+                <button className="settings" onClick={openModal}>
+                  <img src="./settings.svg" alt="Settings" />
+                </button>
+              </div>
             </Header>
             <Error />
+
             {rateLimitInfo && (
               <div className="rate-limit-info">
                 {rateLimitInfo.remaining} requests remaining / resets in {getMinutesUntil(rateLimitInfo.reset)}m
@@ -165,17 +181,8 @@ function App() {
             )}
             <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
           </div>
-        
-          {enhancedTableData && enhancedTableData?.length > 0 && (
-            <DataTable 
-             
-              data={enhancedTableData} 
-              
-              prettyTimeFormat={prettyTimeFormat} 
-              dataLoading={loading} 
-              repoDiffInfo={repoDiffInfo} 
-            />
-          )}
+
+          {enhancedTableData && enhancedTableData?.length > 0 && <DataTable data={enhancedTableData} prettyTimeFormat={prettyTimeFormat} dataLoading={loading} repoDiffInfo={repoDiffInfo} />}
         </div>
         <Modal>
           <Config />

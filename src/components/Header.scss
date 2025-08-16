@@ -1,3 +1,14 @@
+.settings-container {
+  background: transparent;
+
+  .token-warning {
+    font-size: 0.7rem;
+    color: #ff0000;
+    max-width: 300px;
+    text-align: left;
+  }
+}
+
 header {
   position: relative;
   overflow: hidden;
@@ -192,6 +203,7 @@ root {
 .not-animated {
   .circles {
     display: none;
+
     li {
       display: none;
       background-image: none;
