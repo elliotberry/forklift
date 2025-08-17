@@ -10,7 +10,7 @@ const CommitItem = React.memo(({commit, format}) => {
       return new Date(d).toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
       });
     }
     return timeAgo(dateString, 1);
@@ -28,24 +28,22 @@ const CommitItem = React.memo(({commit, format}) => {
 });
 
 const CommitsList = React.memo(({commits, format}) => {
-  const [showCommits, setShowCommits] = useState(false);
-  
-  // Early return if no commits
   if (!commits || commits.length === 0) {
     return null;
   }
-  
+  const [showCommits, setShowCommits] = useState(false);
+
   const toggleCommits = useCallback(() => {
     setShowCommits(prev => !prev);
   }, []);
-  
+
   return (
     <>
       <a onClick={toggleCommits} className={`commits-label ${showCommits ? 'open' : 'closed'}`}>
-        {showCommits ? "hide" : "show"} commits ({commits.length})
+        {showCommits ? 'hide' : 'show'} commits ({commits.length})
       </a>
       {showCommits && (
-        <div className={"commits-menu"}>
+        <div className={'commits-menu'}>
           {commits.map(commit => (
             <CommitItem format={format} key={commit.sha} commit={commit} />
           ))}

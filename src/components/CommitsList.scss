@@ -1,22 +1,28 @@
 .commits-list {
     .commits-label {
+        background: #e8e8e8;
+        border: 1px dotted #bcc5ea;
+
         .open {
             &::after {
                 content: '▼';
             }
+
             .commits-menu {
                 display: block;
             }
         }
+
         .closed {
             &::after {
                 content: '▲';
             }
+
             .commits-menu {
                 display: none;
             }
         }
-        
+
         button {
             cursor: pointer;
             background: none;
