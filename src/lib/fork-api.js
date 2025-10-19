@@ -22,14 +22,14 @@ const forkObjectFormatter = function (fork) {
 };
 
 class Api {
-  constructor(originalRepoString, token, onRateLimit = function () {}, debug = false) {
+  constructor(originalRepoString, token, onRateLimit = function () {}, debug = false, abortController = null) {
     this.config = token
       ? {
           headers: {
             authorization: `token ${token}`,
           },
         }
-      : undefined;
+      : {};
     this.onRateLimit = onRateLimit;
     this.rate = {
       remaining: '?',
@@ -39,6 +39,7 @@ class Api {
     this.originalRepoString = originalRepoString;
     this.originalRepo = {};
     this.debug = debug;
+    this.abortController = abortController;
     return this.init();
   }
 
@@ -49,7 +50,13 @@ class Api {
   async get(url) {
     const start = performance.now();
     try {
-      const response = await fetch(url, this.config);
+      const config = {
+        ...this.config,
+        signal: this.abortController?.signal
+      };
+      
+      const response = await fetch(url, config);
+      
       if (!response.ok) {
         let error = `${response.status} ${response.statusText}`;
         try {
@@ -68,6 +75,10 @@ class Api {
       }
     } catch (error) {
       const end = performance.now();
+      if (error.name === 'AbortError') {
+        this.debug && console.log(`API call to ${url} was aborted`);
+        throw error;
+      }
       this.debug && console.error(`API call to ${url} failed after ${end - start}ms:`, error);
       this.handleError(error);
       throw error;
@@ -206,6 +217,12 @@ class Api {
       const requestStart = performance.now();
 
       try {
+        // Check if request was aborted
+        if (this.abortController?.signal?.aborted) {
+          this.debug && console.log(`Diff calculation aborted after ${performance.now() - start}ms`);
+          return allDiffs;
+        }
+        
         const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {
           const end = performance.now();
@@ -232,6 +249,10 @@ class Api {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       } catch (error) {
+        if (error.name === 'AbortError') {
+          this.debug && console.log(`Diff calculation aborted after ${performance.now() - start}ms`);
+          return allDiffs;
+        }
         this.debug && console.error(`Error getting diff for ${fork.forkId}:`, error);
         const shouldContinue = await onGetDiff(null);
         if (shouldContinue === false) {

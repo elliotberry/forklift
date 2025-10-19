@@ -1,13 +1,19 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 
 import './Search.scss';
 
 const SearchInput = React.memo(({setError, onQueryChange, loading}) => {
+  console.log('SearchInput rendered with onQueryChange:', typeof onQueryChange);
   const [query, setQuery] = useState('');
   const [isValid, setIsValid] = useState(true);
 
+  // Memoized regex patterns for better performance
+  const githubUrlRegex = useMemo(() => /(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/\s]+)\/([^\/\s]+?)(?:\.git)?\/?$/, []);
+  const repoRegex = useMemo(() => /[-_\w]+\/[-_.\w]+/, []);
+
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    console.log('Search form submitted');
 
     let repoQuery = e.target.elements[0].value.trim();
     
@@ -23,7 +29,6 @@ const SearchInput = React.memo(({setError, onQueryChange, loading}) => {
       // https://github.com/owner/repo/
       // https://github.com/owner/repo.git
       // github.com/owner/repo
-      const githubUrlRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/\s]+)\/([^\/\s]+?)(?:\.git)?\/?$/;
       const match = url.match(githubUrlRegex);
       
       if (match) {
@@ -35,31 +40,30 @@ const SearchInput = React.memo(({setError, onQueryChange, loading}) => {
     // Check if it's a GitHub URL first
     const repoFromUrl = extractRepoFromUrl(repoQuery);
     if (repoFromUrl) {
+      console.log('Calling onQueryChange with URL:', repoFromUrl);
       onQueryChange(repoFromUrl);
       return;
     }
 
     // Fall back to the original regex for direct repo format
-    const re = /[-_\w]+\/[-_.\w]+/;
-    if (re.test(repoQuery)) {
+    if (repoRegex.test(repoQuery)) {
+      console.log('Calling onQueryChange with repo:', repoQuery);
       onQueryChange(repoQuery);
     } else {
       setError('Invalid repository name or GitHub URL. Use format: owner/repo or https://github.com/owner/repo');
     }
-  }, [onQueryChange, setError]);
-
+  }, [onQueryChange, setError, githubUrlRegex, repoRegex]);
+  
   // Function to validate input format
   const validateInput = useCallback((input) => {
     if (!input.trim()) return true; // Empty input is considered valid (no error styling)
     
     // Check if it's a GitHub URL
-    const githubUrlRegex = /(?:https?:\/\/)?(?:www\.)?github\.com\/([^\/\s]+)\/([^\/\s]+?)(?:\.git)?\/?$/;
     if (githubUrlRegex.test(input)) return true;
     
     // Check if it's a direct repo format
-    const repoRegex = /[-_\w]+\/[-_.\w]+/;
     return repoRegex.test(input);
-  }, []);
+  }, [githubUrlRegex, repoRegex]);
 
   const handleInputChange = useCallback((e) => {
     const value = e.target.value;

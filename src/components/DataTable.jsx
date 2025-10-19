@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useCallback} from 'react';
 import {useReactTable, getCoreRowModel, getSortedRowModel, flexRender} from '@tanstack/react-table';
 import prettyBytes from 'pretty-bytes';
 import CommitsList from './CommitsList.jsx';
@@ -134,7 +134,7 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
     return data.slice(startIndex, endIndex);
   }, [data, currentPage]);
 
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  const totalPages = useMemo(() => Math.ceil(data.length / ITEMS_PER_PAGE), [data.length]);
 
   const table = useReactTable({
     data: paginatedData,
@@ -150,9 +150,9 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   // Remove unused sorting logic
   const sortedRows = table.getRowModel().rows;
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
-  };
+  }, [totalPages]);
 
   return (
     <div className="table-container">

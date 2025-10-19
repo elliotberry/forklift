@@ -62,6 +62,31 @@ export const logMemoryUsage = (label = 'Memory Usage') => {
   }
 };
 
+// Request batching utility for better API performance
+export const batchRequests = async (requests, batchSize = 5, delay = 100) => {
+  const results = [];
+  
+  for (let i = 0; i < requests.length; i += batchSize) {
+    const batch = requests.slice(i, i + batchSize);
+    const batchPromises = batch.map(request => request());
+    
+    try {
+      const batchResults = await Promise.allSettled(batchPromises);
+      results.push(...batchResults);
+      
+      // Add delay between batches to respect rate limits
+      if (i + batchSize < requests.length) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      console.error('Batch request failed:', error);
+      // Continue with next batch
+    }
+  }
+  
+  return results;
+};
+
 export {
   formatRepoString, 
   getMinutesUntil

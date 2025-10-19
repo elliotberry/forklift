@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 
 import Header from './components/Header.jsx';
 import DataTable from './components/DataTable.jsx';
@@ -27,10 +27,17 @@ function App() {
   const [repoDiffInfo, setRepoDiffInfo] = useState([]);
   const [diffMap, setDiffMap] = useState(new Map());
   const {handleError, Error} = useError();
+  
+  // Refs for cleanup and cancellation
+  const abortControllerRef = useRef(null);
+  const isMountedRef = useRef(true);
 
-  const tryCancel = () => {
+  const tryCancel = useCallback(() => {
     setCancelRequested(true);
-  };
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
 
 
   // Memoized diff map for O(1) lookups
@@ -45,6 +52,15 @@ function App() {
       setDiffMap(newDiffMap);
     }
   }, [repoDiffInfo]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   // Memoized table data with diff info
   const enhancedTableData = useMemo(() => {
@@ -64,43 +80,58 @@ function App() {
     });
   }, [tableData, diffMap]);
 
-  const onRateLimit = obj => {
+  const onRateLimit = useCallback(obj => {
     setRateLimitInfo(obj);
-  };
+  }, []);
 
-  async function getDiffs(forks, api) {
+  const getDiffs = useCallback(async (forks, api) => {
     return measureAsyncPerformance('getDiffs', async () => {
       let repoDiffInfo = [];
       let i = 0;
       let totalNumber = forks.length;
+      
       setLoadingReason('Getting fork diff info...');
 
       await api.getAllDiffs(forks, async function (diff) {
+        
         i++;
 
         // Only add non-null diffs to the array
         if (diff) {
           repoDiffInfo = [...repoDiffInfo, diff];
-          setRepoDiffInfo(repoDiffInfo);
+          setRepoDiffInfo(prev => [...prev, diff]);
         }
+        
         setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
+        
         if (cancelRequested === true) {
           console.log('cancel requested');
           setCancelRequested(false);
           return false;
         }
       });
+      
       setLoadingReason('');
       setLoadingPercent(100);
     });
-  }
+  }, [cancelRequested]);
 
-  async function startSearch(repoString) {
+  const startSearch = useCallback(async (repoString) => {
+    console.log('startSearch called with:', repoString);
     return measureAsyncPerformance('startSearch', async () => {
       try {
+        // Cancel any existing request
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        
+        // Create new abort controller
+        abortControllerRef.current = new AbortController();
+        
         logMemoryUsage('Before search');
 
-        let api = await new Api(repoString, token, onRateLimit, debug);
+        let api = await new Api(repoString, token, onRateLimit, debug, abortControllerRef.current);
+        
         setLoading(true);
         setTableData([]);
         setRepoDiffInfo([]);
@@ -116,7 +147,7 @@ function App() {
           // Only update if we're still loading (not cancelled)
           setTableData(prevTableData => [...prevTableData, ...forks]);
         });
-
+        
         setLoading(false);
         setTableData(forks);
 
@@ -130,12 +161,16 @@ function App() {
 
         logMemoryUsage('After search');
       } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('Search was cancelled');
+          return;
+        }
         console.error('Search failed:', error);
         setLoading(false);
         handleError(`Search failed: ${error.message}`);
       }
     });
-  }
+  }, [token, onRateLimit, debug, loadCommits, getDiffs, handleError]);
 
   return (
     <ErrorBoundary>
