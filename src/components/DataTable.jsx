@@ -3,7 +3,7 @@ import {useReactTable, getCoreRowModel, getSortedRowModel, flexRender} from '@ta
 import prettyBytes from 'pretty-bytes';
 import CommitsList from './CommitsList.jsx';
 import timeAgo from 'elliotisms/time-ago';
-import './Table.scss';
+import './DataTable.scss';
 
 // Memoized cell component to prevent unnecessary re-renders
 const MemoizedCell = React.memo(({props}) => {
@@ -18,7 +18,7 @@ const MemoizedCell = React.memo(({props}) => {
 const MemoizedRow = React.memo(({row}) => {
   // Check if this fork has any changes compared to the original
   const hasChanges = row.original.commitsAhead > 0 || row.original.commitsBehind > 0;
-  
+
   return (
     <tr className={`row-index-${row.index} ${hasChanges ? 'has-changes' : ''}`}>
       {row.getVisibleCells().map(props => (
@@ -37,29 +37,32 @@ const SizeCell = React.memo(({size}) => {
   return <span>{prettyBytes(size)}</span>;
 });
 
-const TimeCell = React.memo(({date, format=1}) => {
+const TimeCell = React.memo(({date, format = 1}) => {
   let value = timeAgo(date);
   if (format === 2) {
     let d = Date.parse(date);
     value = new Date(d).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
   return <span>{value}</span>;
 });
 
-const OwnerCell = React.memo(({owner}) => {
+const OwnerCell = React.memo(({owner, link}) => {
+
   return (
-    <a 
-      href={`https://github.com/${owner}`} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      className="owner-link"
-    >
-      {owner}
-    </a>
+    <>
+      <a href={`https://github.com/${owner}`} target="_blank" rel="noopener noreferrer" className="owner-link">
+        {owner}
+      </a>
+      <span className={`html-link`}>(
+      <a href={link} target="_blank" rel="noopener noreferrer">
+        Link
+      </a>
+      )</span>
+    </>
   );
 });
 
@@ -69,63 +72,79 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   const ITEMS_PER_PAGE = 50;
 
   // Memoized columns definition to prevent recreation on every render
-  const columns = useMemo(() => [
-    {
-      header: 'Author', 
-      accessorKey: 'owner',
-      cell: info => <OwnerCell owner={info.getValue()} />
-    },
-  
-    {
-      header: () => <>Commits<br />Ahead</>,
-      accessorKey: 'commitsAhead',
-      sortingFn: 'basic',
-      size: 50,
-      cell: info => {
-        return <span>{info.getValue()}</span>;
+  const columns = useMemo(
+    () => [
+      {
+        header: 'Author / Link',
+        accessorKey: 'owner',
+        cell: info => {
+          return <OwnerCell link={info.row.original.original.html_url} owner={info.getValue()} />;
+        },
       },
-    },
-    {
-      header: () => <>Commits<br />Behind</>,
-      accessorKey: 'commitsBehind',
-      sortingFn: 'basic',
-      size: 50,
-      cell: info => {
-        return <span>{info.getValue()}</span>;
-      },
-    },
-    {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},
-    {
-      header: 'Commits List',
-      accessorKey: 'commitsList',
-      sortingFn: 'basic',
-      cell: info => {
-        let commitsList = info.getValue();
-        return <CommitsCell format={prettyTimeFormat} commits={commitsList} />;
-      },
-    },
-    {
-      header: 'Size',
-      accessorKey: 'size',
-      sortingFn: 'basic',
-      cell: info => {
-        return <SizeCell size={info.getValue()} />;
-      },
-    },
-    {
-      header: 'Updated',
-      accessorKey: 'updatedAt',
-      sortingFn: 'datetime',
-      cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
-    },
-    {
-      header: 'Created',
-      accessorKey: 'createdAt',
-      sortingFn: 'datetime',
-      cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
-    },
 
-  ], [prettyTimeFormat]);
+      {
+        header: () => (
+          <>
+            Commits
+            <br />
+            Ahead
+          </>
+        ),
+        accessorKey: 'commitsAhead',
+        sortingFn: 'basic',
+        size: 50,
+        cell: info => {
+          return <span>{info.getValue()}</span>;
+        },
+      },
+      {
+        header: () => (
+          <>
+            Commits
+            <br />
+            Behind
+          </>
+        ),
+        accessorKey: 'commitsBehind',
+        sortingFn: 'basic',
+        size: 50,
+        cell: info => {
+          return <span>{info.getValue()}</span>;
+        },
+      },
+      {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},
+      {
+        header: 'Commits List',
+        accessorKey: 'commitsList',
+        sortingFn: 'basic',
+        cell: info => {
+          let commitsList = info.getValue();
+          return <CommitsCell format={prettyTimeFormat} commits={commitsList} />;
+        },
+      },
+      {
+        header: 'Size',
+        accessorKey: 'size',
+        sortingFn: 'basic',
+        cell: info => {
+          return <SizeCell size={info.getValue()} />;
+        },
+      },
+      {
+        header: 'Updated',
+        accessorKey: 'updatedAt',
+        sortingFn: 'datetime',
+        cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
+      },
+      {
+        header: 'Created',
+        accessorKey: 'createdAt',
+        sortingFn: 'datetime',
+        cell: info => <TimeCell format={prettyTimeFormat} date={info.getValue()} />,
+      },
+    ],
+    [prettyTimeFormat],
+  );
 
   // Memoized paginated data
   const paginatedData = useMemo(() => {
@@ -150,9 +169,12 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
   // Remove unused sorting logic
   const sortedRows = table.getRowModel().rows;
 
-  const handlePageChange = useCallback((newPage) => {
-    setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
-  }, [totalPages]);
+  const handlePageChange = useCallback(
+    newPage => {
+      setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
+    },
+    [totalPages],
+  );
 
   return (
     <div className="table-container">
@@ -186,30 +208,22 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
           ))}
         </tbody>
       </table>
-      
+
       {/* Pagination controls */}
       {data.length > ITEMS_PER_PAGE && (
         <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="pagination-button">
             Previous
           </button>
           <span className="pagination-info">
             Page {currentPage} of {totalPages} ({data.length} total items)
           </span>
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="pagination-button">
             Next
           </button>
         </div>
       )}
-      
+
       {data.length === 0 && <div>nothing here, time 2 search for somethin'!</div>}
     </div>
   );
