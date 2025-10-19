@@ -2,7 +2,7 @@ import React, {useState, useMemo} from 'react';
 import {useReactTable, getCoreRowModel, getSortedRowModel, flexRender} from '@tanstack/react-table';
 import prettyBytes from 'pretty-bytes';
 import CommitsList from './CommitsList.jsx';
-import timeAgo from 'elliotisms/timeAgo';
+import timeAgo from 'elliotisms/time-ago';
 import './Table.scss';
 
 // Memoized cell component to prevent unnecessary re-renders

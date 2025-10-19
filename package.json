@@ -11,24 +11,24 @@
   "repository": "https://github.com/elliotberry/forklift.git",
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
-    "elliotisms": "^0.0.52",
-    "pretty-bytes": "^7.0.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "sass": "^1.90.0",
+    "elliotisms": "^0.0.56",
+    "pretty-bytes": "^7.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sass": "^1.93.2",
     "use-local-storage": "^3.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.0",
-    "eslint": "^9.32.0",
+    "@eslint/js": "^9.38.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.38.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "release-it": "^17.1.1",
-    "vite": "^7.1.1"
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.4.0",
+    "release-it": "^19.0.5",
+    "vite": "^7.1.10"
   }
 }

@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import timeAgo from 'elliotisms/timeAgo';
+import timeAgo from 'elliotisms/time-ago';
 import './CommitsList.scss';
 
 // Memoized individual commit item component
