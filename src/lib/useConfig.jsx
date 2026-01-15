@@ -38,7 +38,7 @@ const useConfig = () => {
             e.preventDefault();
           }}>
           <span className="small">Configuration</span>
-          <div className="field">
+          <div className="field text-field">
             <input
               placeholder="github token"
               value={token}

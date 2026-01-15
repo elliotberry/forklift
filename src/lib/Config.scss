@@ -6,6 +6,15 @@
         display: block;
     }
 
+    input[type="text"]+label {
+        clear: both;
+    }
+
+    .text-field {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .field {
         display: flex;
 
