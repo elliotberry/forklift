@@ -56,6 +56,9 @@ button.settings {
   z-index: 333;
   cursor: pointer;
 
+  &.settings--warning img {
+    filter: invert(27%) sepia(98%) saturate(7471%) hue-rotate(0deg);
+  }
 }
 
 

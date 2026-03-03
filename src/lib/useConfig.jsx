@@ -5,6 +5,7 @@ import './Config.scss';
 const useConfig = () => {
   const [token, setToken] = useLocalStorage('token', '');
   const [loadCommits, setLoadCommits] = useLocalStorage('loadCommits', true);
+  const [loadCommitsOnlyForAhead, setLoadCommitsOnlyForAhead] = useLocalStorage('loadCommitsOnlyForAhead', true);
   const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
   const [debug, setDebug] = useLocalStorage('debug', false);
    const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
@@ -17,6 +18,10 @@ const useConfig = () => {
     const handleLoadCommitsChange = React.useCallback((e) => {
       setLoadCommits(e.target.checked);
     }, [setLoadCommits]);
+
+    const handleLoadCommitsOnlyForAheadChange = React.useCallback((e) => {
+      setLoadCommitsOnlyForAhead(e.target.checked);
+    }, [setLoadCommitsOnlyForAhead]);
 
     const handleHeaderAnimationChange = React.useCallback((e) => {
       setHeaderAnimation(e.target.checked);
@@ -58,6 +63,18 @@ const useConfig = () => {
             />
             <label htmlFor="loadCommits">Load commits during search</label>
           </div>
+          {loadCommits && (
+            <div className="field checkbox-field">
+              <input
+                id="loadCommitsOnlyForAhead"
+                name="loadCommitsOnlyForAhead"
+                type="checkbox"
+                checked={loadCommitsOnlyForAhead}
+                onChange={handleLoadCommitsOnlyForAheadChange}
+              />
+              <label htmlFor="loadCommitsOnlyForAhead">Only load commits for repos that are ahead</label>
+            </div>
+          )}
           <div className="field checkbox-field">
             <input
               id="headerAnimation"
@@ -99,7 +116,9 @@ const useConfig = () => {
   
   return {
     token,
+    setToken,
     loadCommits,
+    loadCommitsOnlyForAhead,
     headerAnimation,
     debug,
     prettyTimeFormat,

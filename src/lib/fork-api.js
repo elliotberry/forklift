@@ -205,7 +205,7 @@ class Api {
     return allForks;
   }
 
-  async getAllDiffs(forksToCompare, onGetDiff = async function () {}) {
+  async getAllDiffs(forksToCompare, onGetDiff = async function () {}, loadCommitsOnlyForAhead = false) {
     const start = performance.now();
     const allDiffs = [];
     let processedCount = 0;
@@ -233,7 +233,11 @@ class Api {
         const diff = await this.getDiff(fork);
         processedCount++;
 
-        const shouldContinueAfterDiff = await onGetDiff(diff);
+        const diffToPass = loadCommitsOnlyForAhead && diff && diff.ahead_by === 0
+          ? { ...diff, commitsList: [] }
+          : diff;
+
+        const shouldContinueAfterDiff = await onGetDiff(diffToPass);
         if (shouldContinueAfterDiff === false) {
           const end = performance.now();
           this.debug && console.log(`Diff calculation cancelled after ${end - start}ms, processed ${processedCount} diffs`);

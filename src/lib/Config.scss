@@ -1,4 +1,7 @@
 .config {
+    width: 100%;
+    text-align: left;
+
     &>.small {
         font-size: 0.8em;
         color: #666;
@@ -12,7 +15,13 @@
 
     .text-field {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        width: 100%;
+
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
     }
 
     .field {

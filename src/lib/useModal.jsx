@@ -45,11 +45,12 @@ const styles = {
   },
   modal: {
     backgroundColor: '#fff',
-    padding: '20px',
+    padding: '24px',
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)',
     position: 'relative',
-    width: '300px',
+    width: '480px',
+    maxWidth: '90vw',
     textAlign: 'center',
   },
   closeButton: {

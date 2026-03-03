@@ -15,7 +15,7 @@ import './App.scss';
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {debug, token, prettyTimeFormat, loadCommits, headerAnimation, Config} = useConfig();
+  const {debug, token, setToken, prettyTimeFormat, loadCommits, loadCommitsOnlyForAhead, headerAnimation, Config} = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -53,6 +53,25 @@ function App() {
     }
   }, [repoDiffInfo]);
   
+  // Validate token on load
+  useEffect(() => {
+    const validateToken = async () => {
+      if (!token?.trim()) return;
+      try {
+        const response = await fetch('https://api.github.com/user', {
+          headers: { authorization: `token ${token.trim()}` },
+        });
+        if (response.status === 401) {
+          handleError('GitHub token is invalid or no longer works. It has been removed from settings.');
+          setToken('');
+        }
+      } catch {
+        // Network error - don't delete token, validation can retry on next load
+      }
+    };
+    validateToken();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- run only on mount
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -84,7 +103,7 @@ function App() {
     setRateLimitInfo(obj);
   }, []);
 
-  const getDiffs = useCallback(async (forks, api) => {
+  const getDiffs = useCallback(async (forks, api, loadCommitsOnlyForAhead = false) => {
     return measureAsyncPerformance('getDiffs', async () => {
       let repoDiffInfo = [];
       let i = 0;
@@ -109,7 +128,7 @@ function App() {
           setCancelRequested(false);
           return false;
         }
-      });
+      }, loadCommitsOnlyForAhead);
       
       setLoadingReason('');
       setLoadingPercent(100);
@@ -154,7 +173,7 @@ function App() {
         // Only load diffs if the setting is enabled
         if (loadCommits) {
           let forksToCompare = await api.getForksToCompare(forks);
-          await getDiffs(forksToCompare, api);
+          await getDiffs(forksToCompare, api, loadCommitsOnlyForAhead);
         } else {
           console.log('Skipping diff loading as per user preference');
         }
@@ -170,7 +189,7 @@ function App() {
         handleError(`Search failed: ${error.message}`);
       }
     });
-  }, [token, onRateLimit, debug, loadCommits, getDiffs, handleError]);
+  }, [token, onRateLimit, debug, loadCommits, loadCommitsOnlyForAhead, getDiffs, handleError]);
 
   return (
     <ErrorBoundary>
@@ -180,7 +199,7 @@ function App() {
             <Header headerAnimation={headerAnimation}>
               <div className="settings-container">
                 
-                <button className="settings" onClick={openModal}>
+                <button className={`settings ${!token?.trim() ? 'settings--warning' : ''}`} onClick={openModal}>
                   <img src="./settings.svg" alt="Settings" />
                 </button>
               </div>
@@ -203,6 +222,12 @@ function App() {
             )}
             <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
           </div>
+
+          {tableData.length > 0 && !loading && (
+            <div className="fork-count">
+              {tableData.length} fork{tableData.length !== 1 ? 's' : ''} found
+            </div>
+          )}
 
           {enhancedTableData && enhancedTableData?.length > 0 && <DataTable data={enhancedTableData} prettyTimeFormat={prettyTimeFormat} dataLoading={loading} repoDiffInfo={repoDiffInfo} />}
         </div>
