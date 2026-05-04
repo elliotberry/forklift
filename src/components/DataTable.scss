@@ -1,4 +1,4 @@
-table {
+﻿table {
   width: 100%;
 
   .html-link {
@@ -40,7 +40,7 @@ table {
   .i-own-it {
 
 
-    line-height: 4px;
+    line-height: 0.25rem;
     font-style: italic;
 
   }
@@ -60,7 +60,7 @@ table {
   font-weight: 400;
   font-size: 0.9em;
   font-variant: oldstyle-nums;
-  border-spacing: 2px 2px;
+  border-spacing: 0.125rem 0.125rem;
   text-align: left;
 
   tr {
@@ -123,12 +123,12 @@ table {
     top: 0;
     font-weight: 700;
     display: inline;
-    margin-left: 5px;
+    margin-left: 0.3125rem;
   }
 
   .icon {
     height: 30px;
-    margin-right: 5px;
+    margin-right: 0.3125rem;
   }
 
   .name {

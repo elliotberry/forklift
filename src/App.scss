@@ -1,69 +1,68 @@
-
-
-@font-face {
-    font-family: 'DM Mono';
-    src: local('DM Mono Regular'), local('DMMono-Regular'),
-        url('./dmmono-regular.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
+﻿@font-face {
+  font-family: 'DM Mono';
+  src: local('DM Mono Regular'), local('DMMono-Regular'),
+    url('./dmmono-regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'DM Mono';
-    src: local('DM Mono Medium Italic'), local('DMMono-MediumItalic'),
-        url('./dmmono-medium-italic.woff2') format('woff2');
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
+  font-family: 'DM Mono';
+  src: local('DM Mono Medium Italic'), local('DMMono-MediumItalic'),
+    url('./dmmono-medium-italic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
 }
+
 body {
   margin: 0;
   font-family: 'DM Mono';
   font-size: .9em;
-   -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left !important;
 }
+
 a {
   cursor: pointer;
 }
+
 button {
   cursor: pointer;
 }
+
 .rate-limit-info {
   font-size: 0.7rem;
 }
+
 .fork-count {
   font-size: 0.85rem;
-  margin: 12px 0 8px;
+  margin: 0.75rem 0 0.5rem;
 }
-.container {
-  max-width: 1000px;
-    margin: 0 auto;
-}
+
 .diff-loading-info {
   display: flex;
-  flex-direction:row;
+  flex-direction: row;
 }
-.grid-content {
-  padding-top: 50px;
-}
+
 .small {
   font-size: 0.7rem;
   text-align: left;
 }
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
 header {
   overflow: hidden;
 }
 
-.App {
-  padding: 40px;
-  max-width: 1500px;
+.Application {
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .search-button {
@@ -72,6 +71,6 @@ header {
 
 .table-dialogue {
   text-align: left;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
 }

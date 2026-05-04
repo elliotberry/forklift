@@ -224,7 +224,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="App">
+      <div className="Application">
         <div className="container">
           <div className="grid-content bg-purple-dark">
             <Header headerAnimation={headerAnimation}>

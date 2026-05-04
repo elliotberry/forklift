@@ -1,12 +1,12 @@
-.search {
+﻿.search {
     font-size:1.1em;
     display:flex;
     flex-direction:row;
-    gap:10px;
+    gap: 0.625rem;
     input {
         display:flex;
         font-size:1.1em;
-        padding:10px 5px;
+        padding: 0.625rem 0.3125rem;
         flex: 1;
         min-width: 0;
         border: 2px solid #00000021;
@@ -34,7 +34,7 @@
         font-size:1.1em;
         white-space: nowrap;
         flex-shrink: 0;
-        padding: 10px 15px;
+        padding: 0.625rem 0.9375rem;
         width: auto;
         cursor: pointer;
     }

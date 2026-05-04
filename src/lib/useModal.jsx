@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+﻿import React, { useState, useCallback, useRef } from 'react';
 
 const useModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +45,7 @@ const styles = {
   },
   modal: {
     backgroundColor: '#fff',
-    padding: '24px',
+    padding: '1.5rem',
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)',
     position: 'relative',
@@ -55,11 +55,11 @@ const styles = {
   },
   closeButton: {
     position: 'absolute',
-    top: '10px',
-    right: '10px',
+    top: '0.625rem',
+    right: '0.625rem',
     background: 'none',
     border: 'none',
-    fontSize: '16px',
+    fontSize: '1rem',
     cursor: 'pointer',
   },
 };
