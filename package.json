@@ -13,22 +13,22 @@
     "@tanstack/react-table": "^8.21.3",
     "elliotisms": "^0.0.57",
     "pretty-bytes": "^7.1.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "sass": "^1.97.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "sass": "^1.99.0",
     "use-local-storage": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.4",
-    "eslint": "^10.0.2",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.4.0",
-    "release-it": "^19.2.4",
-    "vite": "^7.3.1"
+    "globals": "^17.6.0",
+    "release-it": "^20.0.1",
+    "vite": "^8.0.10"
   }
 }
