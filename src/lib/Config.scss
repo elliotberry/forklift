@@ -1,47 +1,38 @@
-.config {
+﻿.config {
     width: 100%;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 
     &>.small {
         font-size: 0.8em;
         color: #666;
-        margin-bottom: 13px;
+        margin-bottom: 4px;
         display: block;
-    }
-
-    input[type="text"]+label {
-        clear: both;
-    }
-
-    .text-field {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-
-        input[type="text"] {
-            width: 100%;
-            box-sizing: border-box;
-        }
     }
 
     .field {
         display: flex;
+        flex-direction: column;
+        gap: 6px;
 
         label {
             display: block;
-            margin-bottom: 5px;
             font-size: .8em;
+            color: #4a4a4a;
         }
 
         &.checkbox-field {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 15px;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0;
 
             input[type="checkbox"] {
                 width: auto;
-                margin: 0;
+                margin: 2px 0 0;
                 cursor: pointer;
             }
 
@@ -50,7 +41,19 @@
                 cursor: pointer;
                 font-size: 0.9em;
                 user-select: none;
+                line-height: 1.35;
             }
         }
+    }
+
+    .text-field,
+    .select-field {
+        width: 100%;
+    }
+
+    input[type="text"],
+    select {
+        width: 100%;
+        box-sizing: border-box;
     }
 }

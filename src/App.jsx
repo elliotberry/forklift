@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
+﻿import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 
 import Header from './components/Header.jsx';
 import DataTable from './components/DataTable.jsx';
@@ -16,7 +16,6 @@ import './App.scss';
 function App() {
   const {Modal, openModal} = useModal();
   const {
-    debug,
     token,
     setToken,
     prettyTimeFormat,
@@ -172,7 +171,7 @@ function App() {
         
         logMemoryUsage('Before search');
 
-        let api = await new Api(repoString, token, onRateLimit, debug, abortControllerRef.current);
+        let api = await new Api(repoString, token, onRateLimit, abortControllerRef.current);
         
         setLoading(true);
         setTableData([]);
@@ -220,7 +219,7 @@ function App() {
         handleError(`Search failed: ${error.message}`);
       }
     });
-  }, [token, onRateLimit, debug, loadCommits, loadCommitsOnlyForAhead, showOnlyAheadForks, getDiffs, handleError, cancelRequested]);
+  }, [token, onRateLimit, loadCommits, loadCommitsOnlyForAhead, showOnlyAheadForks, getDiffs, handleError, cancelRequested]);
 
   return (
     <ErrorBoundary>

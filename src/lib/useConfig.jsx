@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import useLocalStorage from './useLocalStorage';
 import './Config.scss';
 
@@ -8,7 +8,6 @@ const useConfig = () => {
   const [loadCommitsOnlyForAhead, setLoadCommitsOnlyForAhead] = useLocalStorage('loadCommitsOnlyForAhead', true);
   const [showOnlyAheadForks, setShowOnlyAheadForks] = useLocalStorage('showOnlyAheadForks', true);
   const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
-  const [debug, setDebug] = useLocalStorage('debug', false);
   const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
 
   const Config = React.memo(() => {
@@ -32,10 +31,6 @@ const useConfig = () => {
       setHeaderAnimation(e.target.checked);
     }, [setHeaderAnimation]);
 
-    const handleDebugChange = React.useCallback((e) => {
-      setDebug(e.target.checked);
-    }, [setDebug]);
-
     const handlePrettyTimeFormatChange = React.useCallback((e) => {
       setPrettyTimeFormat(parseInt(e.target.value));
     }, [setPrettyTimeFormat]);
@@ -49,14 +44,15 @@ const useConfig = () => {
           }}>
           <span className="small">Configuration</span>
           <div className="field text-field">
+            <label htmlFor="token">Github token</label>
             <input
+              id="token"
               placeholder="github token"
               value={token}
               name="token"
               type="text"
               onChange={handleTokenChange}
             />
-            <label htmlFor="token">Github token</label>
           </div>
           <div className="field checkbox-field">
             <input
@@ -102,25 +98,16 @@ const useConfig = () => {
           </div>
 
 
-          <div className="field">
+          <div className="field select-field">
+            <label htmlFor="prettyTimeFormat">Time format</label>
             <select
+              id="prettyTimeFormat"
               value={prettyTimeFormat}
               onChange={handlePrettyTimeFormatChange}
             >
               <option value={1}>'x days ago'</option>
               <option value={2}>'May 1st, 1922'</option>
             </select>
-            <label htmlFor="prettyTimeFormat">Time format</label>
-          </div>
-          <div className="field checkbox-field">
-            <input
-              id="debug"
-              name="debug"
-              type="checkbox"
-              checked={debug}
-              onChange={handleDebugChange}
-            />
-            <label htmlFor="debug">Debug mode</label>
           </div>
         </form>
       </>
@@ -136,7 +123,6 @@ const useConfig = () => {
     loadCommitsOnlyForAhead,
     showOnlyAheadForks,
     headerAnimation,
-    debug,
     prettyTimeFormat,
     Config,
   };
