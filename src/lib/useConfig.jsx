@@ -1,5 +1,5 @@
-import React from 'react';
-import useLocalStorage from 'use-local-storage';
+﻿import React from 'react';
+import useLocalStorage from './useLocalStorage';
 import './Config.scss';
 
 const useConfig = () => {
@@ -8,8 +8,8 @@ const useConfig = () => {
   const [loadCommitsOnlyForAhead, setLoadCommitsOnlyForAhead] = useLocalStorage('loadCommitsOnlyForAhead', true);
   const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
   const [debug, setDebug] = useLocalStorage('debug', false);
-   const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
-  
+  const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
+
   const Config = React.memo(() => {
     const handleTokenChange = React.useCallback((e) => {
       setToken(e.target.value);
@@ -85,8 +85,8 @@ const useConfig = () => {
             />
             <label htmlFor="headerAnimation">Enable header animation</label>
           </div>
-      
-        
+
+
           <div className="field">
             <select
               value={prettyTimeFormat}
@@ -113,7 +113,7 @@ const useConfig = () => {
   });
 
   Config.displayName = 'Config';
-  
+
   return {
     token,
     setToken,
