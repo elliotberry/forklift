@@ -1,8 +1,9 @@
 # forklift 🚛
+Live: https://forklift.vercel.app
 
-A slightly better GitHub fork network viewer. See all the forks of any repo, compare them to the original, and track the action.
+A better GitHub fork network viewer. See all of the forks of any repo, compare them to the original, and track the action.
 
-Demo: forklift-green.vercel.app
+Enter your Github token in the configuration to have better github API rate limits and see your usage. Forklift stores your token on your own computer and never sends it anywhere else. You can also use the app without a token, but you'll be limited to 60 API calls per hour.
 
 ## What it does
 
@@ -17,29 +18,18 @@ Demo: forklift-green.vercel.app
 1. Clone this bad boy
 2. `npm install`
 3. `npm run dev`
-4. click on the config button and enter your GitHub token
+4. Click on the config button and enter your GitHub token
 5. Enter a repo in format `owner/repo-name` and hit search
 
 ## Features
 
-- 🔍 Search any GitHub repo
-- 📊 Fork comparison with commit diffs
-- ⚡ Real-time loading with progress bars
-- 🎨 Animated UI (can be turned off)
-- ⚙️ Configurable settings (GitHub token, display options)
-- 📱 Responsive design
+- 🔍 Search GitHub repositories, revealing their forks and changes thereof.
+- 📊 Comparison with commit diffs information for easy grepping of others' input
 
-## Tech stack
+## Technology
 
-- React 19 + Vite
-- GitHub API
-- SCSS
-- Tanstack's React Table for data display
+React 19 + Vite / SCSS
 
 ## License
 
-The Unlicense - do whatever you want with it 🤷‍♂️
-
----
-
-Made by ɛʟʟɨօȶ
+Unlicense
