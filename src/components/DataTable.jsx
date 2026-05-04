@@ -1,8 +1,9 @@
-import React, {useState, useMemo, useCallback} from 'react';
+﻿import React, {useState, useMemo, useCallback} from 'react';
 import {useReactTable, getCoreRowModel, getSortedRowModel, flexRender} from '@tanstack/react-table';
 import prettyBytes from 'pretty-bytes';
 import CommitsList from './CommitsList.jsx';
 import timeAgo from 'elliotisms/time-ago';
+import useLocalStorage from '../lib/useLocalStorage';
 import './DataTable.scss';
 
 // Memoized cell component to prevent unnecessary re-renders
@@ -66,8 +67,10 @@ const OwnerCell = React.memo(({owner, link}) => {
   );
 });
 
+const DEFAULT_SORTING = [{id: 'commitsAhead', desc: true}];
+
 const DataTable = ({data = [], prettyTimeFormat = 1}) => {
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useLocalStorage('tableSorting', DEFAULT_SORTING);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 50;
 
