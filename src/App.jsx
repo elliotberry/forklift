@@ -11,6 +11,7 @@ import ErrorBoundary from './components/Error-Boundary.jsx';
 import useError from './lib/useError';
 import {getMinutesUntil, measureAsyncPerformance, logMemoryUsage} from './lib/util.js';
 
+
 import './App.scss';
 
 function App() {
