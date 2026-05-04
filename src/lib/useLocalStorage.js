@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const isBrowser = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 

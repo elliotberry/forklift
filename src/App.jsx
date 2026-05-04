@@ -15,7 +15,17 @@ import './App.scss';
 
 function App() {
   const {Modal, openModal} = useModal();
-  const {debug, token, setToken, prettyTimeFormat, loadCommits, loadCommitsOnlyForAhead, headerAnimation, Config} = useConfig();
+  const {
+    debug,
+    token,
+    setToken,
+    prettyTimeFormat,
+    loadCommits,
+    loadCommitsOnlyForAhead,
+    showOnlyAheadForks,
+    headerAnimation,
+    Config,
+  } = useConfig();
 
   const [loading, setLoading] = useState(false);
   const [loadingReason, setLoadingReason] = useState('');
@@ -83,7 +93,7 @@ function App() {
 
   // Memoized table data with diff info
   const enhancedTableData = useMemo(() => {
-    return tableData.map(fork => {
+    const mergedTableData = tableData.map(fork => {
       const diff = diffMap.get(fork.forkId);
       if (diff) {
         return {
@@ -97,13 +107,21 @@ function App() {
       }
       return fork;
     });
-  }, [tableData, diffMap]);
+
+    if (!showOnlyAheadForks) {
+      return mergedTableData;
+    }
+
+    return mergedTableData.filter(fork => (fork.commitsAhead || 0) > 0);
+  }, [tableData, diffMap, showOnlyAheadForks]);
 
   const onRateLimit = useCallback(obj => {
     setRateLimitInfo(obj);
   }, []);
 
-  const getDiffs = useCallback(async (forks, api, loadCommitsOnlyForAhead = false) => {
+  const getDiffs = useCallback(async (forks, api, options = {}) => {
+    const {loadCommitsOnlyForAhead = false, showOnlyAheadForks = false, loadCommits = true} = options;
+
     return measureAsyncPerformance('getDiffs', async () => {
       let repoDiffInfo = [];
       let i = 0;
@@ -117,8 +135,13 @@ function App() {
 
         // Only add non-null diffs to the array
         if (diff) {
-          repoDiffInfo = [...repoDiffInfo, diff];
-          setRepoDiffInfo(prev => [...prev, diff]);
+          const shouldKeepDiff = !showOnlyAheadForks || diff.ahead_by > 0;
+          const normalizedDiff = loadCommits ? diff : {...diff, commitsList: []};
+
+          if (shouldKeepDiff) {
+            repoDiffInfo = [...repoDiffInfo, normalizedDiff];
+            setRepoDiffInfo(prev => [...prev, normalizedDiff]);
+          }
         }
         
         setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
@@ -163,17 +186,25 @@ function App() {
             setCancelRequested(false);
             return false;
           }
-          // Only update if we're still loading (not cancelled)
-          setTableData(prevTableData => [...prevTableData, ...forks]);
+          if (!showOnlyAheadForks) {
+            // Only update if we're still loading (not cancelled)
+            setTableData(prevTableData => [...prevTableData, ...forks]);
+          }
         });
         
         setLoading(false);
         setTableData(forks);
 
-        // Only load diffs if the setting is enabled
-        if (loadCommits) {
+        const shouldFetchDiffs = loadCommits || showOnlyAheadForks;
+
+        // Load diffs when commits are enabled, or when we need ahead-only filtering.
+        if (shouldFetchDiffs) {
           let forksToCompare = await api.getForksToCompare(forks);
-          await getDiffs(forksToCompare, api, loadCommitsOnlyForAhead);
+          await getDiffs(forksToCompare, api, {
+            loadCommitsOnlyForAhead: loadCommitsOnlyForAhead || showOnlyAheadForks,
+            showOnlyAheadForks,
+            loadCommits,
+          });
         } else {
           console.log('Skipping diff loading as per user preference');
         }
@@ -189,7 +220,7 @@ function App() {
         handleError(`Search failed: ${error.message}`);
       }
     });
-  }, [token, onRateLimit, debug, loadCommits, loadCommitsOnlyForAhead, getDiffs, handleError]);
+  }, [token, onRateLimit, debug, loadCommits, loadCommitsOnlyForAhead, showOnlyAheadForks, getDiffs, handleError, cancelRequested]);
 
   return (
     <ErrorBoundary>
@@ -223,9 +254,9 @@ function App() {
             <SearchInput setError={handleError} onQueryChange={startSearch} loading={loading} />
           </div>
 
-          {tableData.length > 0 && !loading && (
+          {enhancedTableData.length > 0 && !loading && (
             <div className="fork-count">
-              {tableData.length} fork{tableData.length !== 1 ? 's' : ''} found
+              {enhancedTableData.length} fork{enhancedTableData.length !== 1 ? 's' : ''} found
             </div>
           )}
 

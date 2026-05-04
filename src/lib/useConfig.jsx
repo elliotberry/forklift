@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import useLocalStorage from './useLocalStorage';
 import './Config.scss';
 
@@ -6,6 +6,7 @@ const useConfig = () => {
   const [token, setToken] = useLocalStorage('token', '');
   const [loadCommits, setLoadCommits] = useLocalStorage('loadCommits', true);
   const [loadCommitsOnlyForAhead, setLoadCommitsOnlyForAhead] = useLocalStorage('loadCommitsOnlyForAhead', true);
+  const [showOnlyAheadForks, setShowOnlyAheadForks] = useLocalStorage('showOnlyAheadForks', true);
   const [headerAnimation, setHeaderAnimation] = useLocalStorage('headerAnimation', true);
   const [debug, setDebug] = useLocalStorage('debug', false);
   const [prettyTimeFormat, setPrettyTimeFormat] = useLocalStorage('prettyTimeFormat', 1);
@@ -22,6 +23,10 @@ const useConfig = () => {
     const handleLoadCommitsOnlyForAheadChange = React.useCallback((e) => {
       setLoadCommitsOnlyForAhead(e.target.checked);
     }, [setLoadCommitsOnlyForAhead]);
+
+    const handleShowOnlyAheadForksChange = React.useCallback((e) => {
+      setShowOnlyAheadForks(e.target.checked);
+    }, [setShowOnlyAheadForks]);
 
     const handleHeaderAnimationChange = React.useCallback((e) => {
       setHeaderAnimation(e.target.checked);
@@ -77,6 +82,16 @@ const useConfig = () => {
           )}
           <div className="field checkbox-field">
             <input
+              id="showOnlyAheadForks"
+              name="showOnlyAheadForks"
+              type="checkbox"
+              checked={showOnlyAheadForks}
+              onChange={handleShowOnlyAheadForksChange}
+            />
+            <label htmlFor="showOnlyAheadForks">Only show forks that are ahead of original</label>
+          </div>
+          <div className="field checkbox-field">
+            <input
               id="headerAnimation"
               name="headerAnimation"
               type="checkbox"
@@ -119,6 +134,7 @@ const useConfig = () => {
     setToken,
     loadCommits,
     loadCommitsOnlyForAhead,
+    showOnlyAheadForks,
     headerAnimation,
     debug,
     prettyTimeFormat,

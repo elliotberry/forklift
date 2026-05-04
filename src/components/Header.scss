@@ -1,4 +1,4 @@
-.settings-container {
+﻿.settings-container {
   background: transparent;
 
   .token-warning {
@@ -36,7 +36,6 @@ header {
   .title-container {
     display: flex;
     position: absolute;
-    /* top: 0px; */
     bottom: -3px;
     width: 100%;
     left: 5px;
@@ -121,7 +120,7 @@ root {
       list-style: none;
       animation: animate 5s linear infinite;
       bottom: -150px;
-      background-image: url('./ferk.png');
+      background-image: url('/ferk.png');
       background-size: 100% 100%;
       background-repeat: no-repeat;
     }
