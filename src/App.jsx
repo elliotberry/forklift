@@ -115,6 +115,10 @@ function App() {
     return mergedTableData.filter(fork => (fork.commitsAhead || 0) > 0);
   }, [tableData, diffMap, showOnlyAheadForks]);
 
+  const aheadRepoCount = useMemo(() => {
+    return enhancedTableData.filter(fork => (fork.commitsAhead || 0) > 0).length;
+  }, [enhancedTableData]);
+
   const onRateLimit = useCallback(obj => {
     setRateLimitInfo(obj);
   }, []);
@@ -256,7 +260,7 @@ function App() {
 
           {enhancedTableData.length > 0 && !loading && (
             <div className="fork-count">
-              {enhancedTableData.length} fork{enhancedTableData.length !== 1 ? 's' : ''} found
+              {enhancedTableData.length} repos found{showOnlyAheadForks ? `. ${aheadRepoCount} repos are ahead.` : ''}
             </div>
           )}
 
