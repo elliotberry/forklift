@@ -96,10 +96,17 @@ function App() {
     const mergedTableData = tableData.map(fork => {
       const diff = diffMap.get(fork.forkId);
       if (diff) {
+        const isAhead = (diff.ahead_by || 0) > 0;
+        const isVisibleByConfig = !showOnlyAheadForks || isAhead;
+        const shouldAttachCommits =
+          loadCommits &&
+          isVisibleByConfig &&
+          (!loadCommitsOnlyForAhead || isAhead);
+
         return {
           ...fork,
           diffInfo: diff,
-          commitsList: diff.commitsList,
+          commitsList: shouldAttachCommits ? diff.commitsList : [],
           changes: diff.simpleSummary,
           commitsAhead: diff.ahead_by,
           commitsBehind: diff.behind_by,
@@ -112,8 +119,10 @@ function App() {
       return mergedTableData;
     }
 
-    return mergedTableData.filter(fork => (fork.commitsAhead || 0) > 0);
-  }, [tableData, diffMap, showOnlyAheadForks]);
+    // In ahead-only mode, show repos immediately while diff data is still loading.
+    // Once diff info arrives, keep only repos that are actually ahead.
+    return mergedTableData.filter(fork => fork.commitsAhead === undefined || fork.commitsAhead > 0);
+  }, [tableData, diffMap, showOnlyAheadForks, loadCommits, loadCommitsOnlyForAhead]);
 
   const aheadRepoCount = useMemo(() => {
     return enhancedTableData.filter(fork => (fork.commitsAhead || 0) > 0).length;
@@ -139,13 +148,9 @@ function App() {
 
         // Only add non-null diffs to the array
         if (diff) {
-          const shouldKeepDiff = !showOnlyAheadForks || diff.ahead_by > 0;
           const normalizedDiff = loadCommits ? diff : {...diff, commitsList: []};
-
-          if (shouldKeepDiff) {
-            repoDiffInfo = [...repoDiffInfo, normalizedDiff];
-            setRepoDiffInfo(prev => [...prev, normalizedDiff]);
-          }
+          repoDiffInfo = [...repoDiffInfo, normalizedDiff];
+          setRepoDiffInfo(prev => [...prev, normalizedDiff]);
         }
         
         setLoadingPercent(((i / totalNumber) * 100).toFixed(1));
@@ -190,10 +195,8 @@ function App() {
             setCancelRequested(false);
             return false;
           }
-          if (!showOnlyAheadForks) {
-            // Only update if we're still loading (not cancelled)
-            setTableData(prevTableData => [...prevTableData, ...forks]);
-          }
+          // Show repos as soon as they are discovered; diff info can populate later.
+          setTableData(prevTableData => [...prevTableData, ...forks]);
         });
         
         setLoading(false);
