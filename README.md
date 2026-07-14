@@ -17,10 +17,24 @@ Enter your Github token in the configuration to have better github API rate limi
 ## Quick start
 
 1. Clone this bad boy
-2. `npm install`
-3. `npm run dev`
+2. `yarn install`
+3. `yarn dev`
 4. Click on the config button and enter your GitHub token
 5. Enter a repo in format `owner/repo-name` and hit search
+
+## Deploy (Cloudflare Workers)
+
+Static SPA on Workers Assets via the [Cloudflare Vite plugin](https://developers.cloudflare.com/workers/vite-plugin/).
+
+```sh
+yarn deploy
+```
+
+Local preview of the production build in the Workers runtime:
+
+```sh
+yarn build && yarn preview
+```
 
 ## Features
 
@@ -29,7 +43,7 @@ Enter your Github token in the configuration to have better github API rate limi
 
 ## Technology
 
-React 19 + Vite / SCSS
+React 19 + Vite / SCSS, deployed as a Cloudflare Worker with static assets
 
 ## License
 

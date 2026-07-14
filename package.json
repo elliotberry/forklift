@@ -4,8 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "yarn build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
+  "packageManager": "yarn@4.14.1",
   "author": "ɛʟʟɨօȶ b",
   "license": "The Unlicense",
   "repository": "https://github.com/elliotberry/forklift.git",
@@ -13,10 +17,12 @@
     "@tanstack/react-table": "^8.21.3",
     "elliotisms": "^0.0.57",
     "pretty-bytes": "^7.1.0",
+    "prop-types": "^15.8.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.44.0",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -29,6 +35,7 @@
     "globals": "^17.7.0",
     "release-it": "^20.2.1",
     "sass": "^1.101.0",
-    "vite": "^8.1.4"
+    "vite": "^8.1.4",
+    "wrangler": "^4.110.0"
   }
 }

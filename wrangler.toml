@@ -1,0 +1,11 @@
+name = "forklift"
+# Update periodically: https://developers.cloudflare.com/workers/configuration/compatibility-dates/
+compatibility_date = "2026-07-14"
+routes = [
+    { pattern = "forklift.nehima.co", custom_domain = true },
+]
+[assets]
+not_found_handling = "single-page-application"
+
+[observability]
+enabled = true
