@@ -97,7 +97,8 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
         sortingFn: 'basic',
         size: 50,
         cell: info => {
-          return <span>{info.getValue()}</span>;
+          const value = info.getValue();
+          return <span>{value === undefined ? '…' : value}</span>;
         },
       },
       {
@@ -112,7 +113,8 @@ const DataTable = ({data = [], prettyTimeFormat = 1}) => {
         sortingFn: 'basic',
         size: 50,
         cell: info => {
-          return <span>{info.getValue()}</span>;
+          const value = info.getValue();
+          return <span>{value === undefined ? '…' : value}</span>;
         },
       },
       {header: 'Stars', accessorKey: 'stars', sortingFn: 'basic'},

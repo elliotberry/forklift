@@ -14,8 +14,10 @@
     owner: fork.owner.login,
     description: fork.description,
     isTheOriginal: fork.isTheOriginal || false,
-    commitsAhead: 0,
-    commitsBehind: 0,
+    // Leave ahead/behind undefined until compare returns so ahead-only
+    // filtering can still show rows immediately while diffs load.
+    commitsAhead: undefined,
+    commitsBehind: undefined,
     commitsList: [],
     original: fork,
   };
